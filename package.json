@@ -1,0 +1,29 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently --prefix command 'vitepress dev' \"vitepress dev packages/\"{form,caps,trpc-vue-query,lang,gha-cache-server,expo-event-source-polyfill,nitro-trpc-event-handler,util,configs}",
+    "build": "vitepress build && vitepress build packages/{form,caps,trpc-vue-query,lang,gha-cache-server,expo-event-source-polyfill,nitro-trpc-event-handler,util,configs}"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.0",
+  "devDependencies": {
+    "vitepress": "^1.6.3"
+  },
+  "dependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@louishaftmann/eslint-config": "^4.2.0",
+    "@louishaftmann/prettier-config": "^4.2.0",
+    "concurrently": "^9.1.2",
+    "defu": "^6.1.4",
+    "eslint": "^9.28.0",
+    "prettier": "^3.5.3",
+    "remeda": "^2.23.0",
+    "vitepress-plugin-group-icons": "^1.6.0",
+    "vue": "^3.5.16"
+  }
+}
