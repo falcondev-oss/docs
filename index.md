@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: falconDev
-  text: Open-Source packages
-  tagline: Focusing on type safety and developer experience
+  text: Open-Source
+  tagline: Outstanding Type-Safety and Developer Experience without compromise.
   image:
     src: /logo.svg
     alt: falconDev
@@ -16,25 +16,28 @@ hero:
       text: Sponsors
       link: https://github.com/sponsors/falcondev-oss
 
-grouped-features:
+hideRootLink: true
+groupedFeatures:
   - title: Caps
-    details: Type-safe access control made simple
+    details: Readable access control logic with generators
     link: '/caps/'
     linkText: Learn more
     group: 0
     icon:
       src: /caps/logo.svg
       alt: Caps
+
   - title: Form
-    details: Type-safe form handling made simple
+    details: Reactive form state management & validation
     link: '/form/'
     linkText: Learn more
     group: 0
     icon:
       src: /form/logo.svg
       alt: Form
+
   - title: Lang
-    details: Type-safe form handling made simple
+    details: i18n with convenient in-editor preview
     link: '/lang/'
     linkText: Learn more
     group: 0
@@ -43,7 +46,7 @@ grouped-features:
       alt: Lang
 
   - title: tRPC Vue Query
-    details: Type-safe form handling made simple
+    details: TanStack Vue-Query client for tRPC
     link: '/trpc-vue-query/'
     linkText: Learn more
     group: 1
@@ -52,15 +55,16 @@ grouped-features:
       alt: tRPC Vue Query
 
   - title: GHA Cache Server
-    details: Type-safe form handling made simple
+    details: Self-Hosted Cache Server for GitHub Actions
     link: '/gha-cache-server/'
     linkText: Learn more
     group: 1
     icon:
       src: /gha-cache-server/logo.svg
       alt: GHA Cache Server
+
   - title: util
-    details: Type-safe form handling made simple
+    details: Collection of utility functions and types
     link: '/util/'
     linkText: Learn more
     group: 2
@@ -69,15 +73,16 @@ grouped-features:
       alt: util
 
   - title: configs
-    details: Type-safe form handling made simple
+    details: Our opinionated configs for development tools
     link: '/configs/'
     linkText: Learn more
     group: 2
     icon:
       src: /configs/logo.svg
       alt: configs
+
   - title: nitro-trpc-event-handler
-    details: Type-safe form handling made simple
+    details: tRPC integration for Nitro backends
     link: '/nitro-trpc-event-handler/'
     linkText: Learn more
     group: 2
@@ -86,7 +91,7 @@ grouped-features:
       alt: nitro-trpc-event-handler
 
   - title: expo-event-source-polyfill
-    details: Type-safe form handling made simple
+    details: A polyfill for the EventSource API in Expo using `expo/fetch`
     link: '/expo-event-source-polyfill/'
     linkText: Learn more
     group: 2

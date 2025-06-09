@@ -1,10 +1,5 @@
 dist/
-.nuxt/
-.nitro/
-.output/
-.temp/
+.vitepress/cache/
 node_modules/
-.data/
-drizzle/
 
 pnpm-lock.yaml

@@ -40,4 +40,5 @@ export default defineConfigWithDefaults({
   themeConfig: {
     logo: '/logo.svg',
   },
+  srcExclude: ['./packages/'],
 })

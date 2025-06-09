@@ -1,17 +1,15 @@
 {
-  "name": "docs",
+  "name": "@falcondev-oss/docs",
+  "private": true,
   "version": "1.0.0",
   "description": "",
   "type": "module",
   "scripts": {
-    "dev": "concurrently --prefix command 'vitepress dev' \"vitepress dev packages/\"{form,caps,trpc-vue-query,lang,gha-cache-server,expo-event-source-polyfill,nitro-trpc-event-handler,util,configs}",
-    "build": "vitepress build && vitepress build packages/{form,caps,trpc-vue-query,lang,gha-cache-server,expo-event-source-polyfill,nitro-trpc-event-handler,util,configs}"
+    "dev": "concurrently --prefix command 'vitepress dev' \"vitepress dev packages/\"{caps,configs,expo-event-source-polyfill,form,gha-cache-server,lang,nitro-trpc-event-handler,trpc-vue-query,util}",
+    "build": "vitepress build && echo packages/{caps,configs,expo-event-source-polyfill,form,gha-cache-server,lang,nitro-trpc-event-handler,trpc-vue-query,util} | xargs -n 1 vitepress build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.11.0",
   "devDependencies": {
+    "vite": "^6.3.5",
     "vitepress": "^1.6.3"
   },
   "dependencies": {

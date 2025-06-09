@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2022",
-    "lib": ["es2022"],
+    "lib": ["es2022", "DOM"],
     "moduleDetection": "force",
 
     "module": "preserve",
@@ -18,9 +18,9 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true
   },
-  "include": ["./**/*"],
+  "include": ["./**/*", "./**/.vitepress/**/*.ts"],
   "vueCompilerOptions": {
     "vitePressExtensions": [".md"]
   },
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["dist"]
 }
