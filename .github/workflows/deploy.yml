@@ -25,6 +25,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Build
+        shell: bash
         run: pnpm run build
 
       - name: Upload artifact
