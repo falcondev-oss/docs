@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "concurrently --prefix command 'vitepress dev' \"vitepress dev packages/\"{caps,configs,expo-event-source-polyfill,form,gha-cache-server,lang,nitro-trpc-event-handler,trpc-vue-query,util}",
-    "build": "vitepress build && bash -c 'echo packages/{caps,configs,expo-event-source-polyfill,form,gha-cache-server,lang,nitro-trpc-event-handler,trpc-vue-query,util} | xargs -n 1 vitepress build'"
+    "build": "vitepress build && bash -c 'echo packages/{caps,configs,expo-event-source-polyfill,form,gha-cache-server,lang,nitro-trpc-event-handler,trpc-vue-query,util} | xargs -n1 -P4 vitepress build'"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3.3.1",
