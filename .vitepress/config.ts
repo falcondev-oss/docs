@@ -1,4 +1,3 @@
-import { defineConfig } from 'vitepress'
 import { defineConfigWithDefaults } from '../default-config'
 
 export default defineConfigWithDefaults({

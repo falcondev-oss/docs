@@ -1,9 +1,9 @@
 {
   "name": "@falcondev-oss/docs",
-  "private": true,
-  "version": "1.0.0",
-  "description": "",
   "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
   "engines": {
     "node": "^22.14.0",
     "pnpm": "^10.11.1"
@@ -11,10 +11,6 @@
   "scripts": {
     "dev": "concurrently --prefix command 'vitepress dev' \"vitepress dev packages/\"{caps,configs,expo-event-source-polyfill,form,gha-cache-server,lang,nitro-trpc-event-handler,trpc-vue-query,util}",
     "build": "vitepress build && bash -c 'echo packages/{caps,configs,expo-event-source-polyfill,form,gha-cache-server,lang,nitro-trpc-event-handler,trpc-vue-query,util} | xargs -n 1 vitepress build'"
-  },
-  "devDependencies": {
-    "vite": "^6.3.5",
-    "vitepress": "^1.6.3"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -27,5 +23,9 @@
     "remeda": "^2.23.0",
     "vitepress-plugin-group-icons": "^1.6.0",
     "vue": "^3.5.16"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5",
+    "vitepress": "^1.6.3"
   }
 }

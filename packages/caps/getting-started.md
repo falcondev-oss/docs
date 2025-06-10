@@ -161,11 +161,11 @@ const useActor = createActor<User>().build((cap) => ({
         }
       }
 
-      if (actor.role === 'moderator') {
-        // Moderators can only promote to certain roles
-        if (args.promote?.targetRole === 'user' || args.promote?.targetRole === 'moderator') {
-          yield ['promote']
-        }
+      if (
+        actor.role === 'moderator' && // Moderators can only promote to certain roles
+        (args.promote?.targetRole === 'user' || args.promote?.targetRole === 'moderator')
+      ) {
+        yield ['promote']
       }
 
       return []
@@ -247,7 +247,7 @@ caps.user.subjects(users).canSome('delete').check() // true
 Here's a comprehensive example showing a realistic user management system:
 
 ```ts
-import { createActor, arg, MissingCapabilityError } from '@falcondev-oss/caps'
+import { arg, createActor, MissingCapabilityError } from '@falcondev-oss/caps'
 
 type Role = 'user' | 'moderator' | 'admin'
 
@@ -320,9 +320,9 @@ adminCaps.user.subject(targetUser).list({
 // Error handling
 try {
   userCaps.user.subject(targetUser).can('delete', { delayed: true }).throw()
-} catch (error) {
-  error instanceof MissingCapabilityError // true
-  error.message // "Missing capability: 'delete'"
+} catch (err) {
+  err instanceof MissingCapabilityError // true
+  err.message // "Missing capability: 'delete'"
 }
 
 // Bulk operations with complex filtering
@@ -346,24 +346,27 @@ type DocumentModes = Modes<{
 const useActor = createActor<User>().build((cap) => ({
   document: cap.subject<DocumentModes>().define(function* ({ actor, subject }) {
     switch (subject.__mode) {
-      case 'draft':
+      case 'draft': {
         if (subject.authorId === actor.id) {
           yield ['read', 'edit', 'publish', 'delete']
         }
         break
+      }
 
-      case 'published':
+      case 'published': {
         yield ['read'] // Everyone can read published docs
         if (subject.authorId === actor.id) {
           yield ['edit', 'archive']
         }
         break
+      }
 
-      case 'archived':
+      case 'archived': {
         if (actor.role === 'admin') {
           yield ['read', 'restore', 'delete']
         }
         break
+      }
     }
 
     return []

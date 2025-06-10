@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { groupBy, prop } from 'remeda'
 import { useData } from 'vitepress'
-import { computed } from 'vue'
 import DefaultTheme, { VPFeatures } from 'vitepress/theme'
+import { computed } from 'vue'
 
 const { Layout } = DefaultTheme
 
@@ -10,7 +10,7 @@ const { frontmatter: fm } = useData()
 const origin = import.meta.env.SSR ? '' : window.location.origin
 const groupedFeatures = computed(() =>
   groupBy(
-    ((fm.value['groupedFeatures'] as any[])?.map((feature) => ({
+    ((fm.value.groupedFeatures as any[])?.map((feature) => ({
       ...feature,
       link: origin + feature.link,
       target: '_self',
@@ -28,13 +28,18 @@ const groupedFeatures = computed(() =>
 <template>
   <Layout>
     <template #nav-bar-title-before>
-      <div class="header-title-prefix" v-if="!fm['hideRootLink']">
+      <div v-if="!fm.hideRootLink" class="header-title-prefix">
         <a href="/" target="_self">@falcondev-oss</a>
         <span style="font-size: 1.5rem">/</span>
       </div>
     </template>
     <template #home-features-after>
-      <VPFeatures v-for="(features, group) of groupedFeatures" :features="features" />
+      <VPFeatures
+        v-for="(features, group, idx) of groupedFeatures"
+        :key="group"
+        :features="features"
+        :style="{ marginTop: idx === 0 ? 0 : '0.5rem' }"
+      />
     </template>
   </Layout>
 </template>
