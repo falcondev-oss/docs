@@ -1,4 +1,3 @@
-export { default } from '../../../../.vitepress/theme/layout'
+export { default } from '../../../../theme/layout'
 
 import './custom.css'
-import 'virtual:group-icons.css'

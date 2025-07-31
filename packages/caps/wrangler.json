@@ -1,0 +1,18 @@
+{
+  "compatibility_date": "2025-05-15",
+  "name": "docs-caps",
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "caps.falcondev.io",
+      "custom_domain": true
+    },
+    {
+      "pattern": "caps.falcondev.io/*",
+      "zone_name": "falcondev.io"
+    }
+  ],
+  "assets": {
+    "directory": "dist"
+  }
+}

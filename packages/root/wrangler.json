@@ -1,0 +1,18 @@
+{
+  "compatibility_date": "2025-05-15",
+  "name": "docs-root",
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "falcondev.io",
+      "custom_domain": true
+    },
+    {
+      "pattern": "falcondev.io/*",
+      "zone_name": "falcondev.io"
+    }
+  ],
+  "assets": {
+    "directory": "dist"
+  }
+}

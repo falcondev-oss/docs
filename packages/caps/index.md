@@ -12,10 +12,7 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /guide
-    - theme: alt
-      text: Examples
-      link: /examples
+      link: /getting-started
 
 features:
   - title: Actor-Subject Model

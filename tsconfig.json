@@ -17,7 +17,7 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true
   },
-  "include": ["./**/*", "./**/.vitepress/**/*.ts"],
+  "include": ["./**/*"],
   "vueCompilerOptions": {
     "vitePressExtensions": [".md"]
   },

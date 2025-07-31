@@ -1,0 +1,19 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "tui",
+  "globalPassThroughEnv": ["CLOUDFLARE_ACCOUNT_ID"],
+  "globalDependencies": ["default-config.ts", "theme/**"],
+  "tasks": {
+    "deploy": {
+      "dependsOn": ["build"],
+      "outputs": [".wrangler/**"]
+    },
+    "build": {
+      "outputs": ["dist/**", ".vitepress/cache/**"]
+    },
+    "dev": {
+      "persistent": true,
+      "cache": false
+    }
+  }
+}

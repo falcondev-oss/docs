@@ -1,0 +1,18 @@
+{
+  "compatibility_date": "2025-05-15",
+  "name": "docs-form",
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "form.falcondev.io",
+      "custom_domain": true
+    },
+    {
+      "pattern": "form.falcondev.io/*",
+      "zone_name": "falcondev.io"
+    }
+  ],
+  "assets": {
+    "directory": "dist"
+  }
+}

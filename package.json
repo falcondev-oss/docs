@@ -3,29 +3,32 @@
   "type": "module",
   "version": "1.0.0",
   "private": true,
-  "description": "",
+  "packageManager": "pnpm@10.13.1",
   "engines": {
     "node": "^22.14.0",
     "pnpm": "^10.11.1"
   },
   "scripts": {
-    "dev": "concurrently --prefix command 'vitepress dev' \"vitepress dev packages/\"{caps,configs,expo-event-source-polyfill,form,gha-cache-server,lang,nitro-trpc-event-handler,trpc-vue-query,util}",
-    "build": "vitepress build && bash -c 'echo packages/{caps,configs,expo-event-source-polyfill,form,gha-cache-server,lang,nitro-trpc-event-handler,trpc-vue-query,util} | xargs -n1 -P4 vitepress build'"
+    "dev": "turbo dev",
+    "deploy": "turbo deploy",
+    "build": "turbo build"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3.3.1",
-    "@louishaftmann/eslint-config": "^4.2.0",
-    "@louishaftmann/prettier-config": "^4.2.0",
-    "concurrently": "^9.1.2",
+    "@louishaftmann/eslint-config": "^4.3.3",
+    "@louishaftmann/prettier-config": "^4.3.3",
+    "concurrently": "^9.2.0",
     "defu": "^6.1.4",
-    "eslint": "^9.28.0",
-    "prettier": "^3.5.3",
-    "remeda": "^2.23.0",
-    "vitepress-plugin-group-icons": "^1.6.0",
-    "vue": "^3.5.16"
+    "eslint": "^9.32.0",
+    "prettier": "^3.6.2",
+    "remeda": "^2.27.0",
+    "vitepress-plugin-group-icons": "^1.6.1",
+    "vue": "^3.5.18"
   },
   "devDependencies": {
-    "vite": "^6.3.5",
-    "vitepress": "^1.6.3"
+    "turbo": "^2.5.5",
+    "vite": "^7.0.6",
+    "vitepress": "^1.6.3",
+    "wrangler": "^4.27.0"
   }
 }

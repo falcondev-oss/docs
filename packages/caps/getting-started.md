@@ -5,19 +5,19 @@
 ::: code-group
 
 ```sh [npm]
-$ npm install @falcondev-oss/caps
+npm install @falcondev-oss/caps
 ```
 
 ```sh [yarn]
-$ yarn add @falcondev-oss/caps
+yarn add @falcondev-oss/caps
 ```
 
 ```sh [pnpm]
-$ pnpm add @falcondev-oss/caps
+pnpm add @falcondev-oss/caps
 ```
 
 ```sh [bun]
-$ bun add @falcondev-oss/caps
+bun add @falcondev-oss/caps
 ```
 
 :::

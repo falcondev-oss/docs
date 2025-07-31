@@ -1,0 +1,9 @@
+{
+  "name": "nitro-trpc-event-handler",
+  "type": "module",
+  "scripts": {
+    "build": "vitepress build",
+    "dev": "vitepress dev",
+    "deploy": "wrangler deploy"
+  }
+}

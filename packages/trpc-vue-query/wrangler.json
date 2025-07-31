@@ -1,0 +1,18 @@
+{
+  "compatibility_date": "2025-05-15",
+  "name": "docs-trpc-vue-query",
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "trpc-vue-query.falcondev.io",
+      "custom_domain": true
+    },
+    {
+      "pattern": "trpc-vue-query.falcondev.io/*",
+      "zone_name": "falcondev.io"
+    }
+  ],
+  "assets": {
+    "directory": "dist"
+  }
+}

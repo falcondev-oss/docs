@@ -1,0 +1,18 @@
+{
+  "compatibility_date": "2025-05-15",
+  "name": "docs-gha-cache-server",
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "gha-cache-server.falcondev.io",
+      "custom_domain": true
+    },
+    {
+      "pattern": "gha-cache-server.falcondev.io/*",
+      "zone_name": "falcondev.io"
+    }
+  ],
+  "assets": {
+    "directory": "dist"
+  }
+}

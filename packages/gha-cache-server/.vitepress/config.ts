@@ -3,36 +3,69 @@ import { defineConfigWithDefaults } from '../../../default-config'
 export default defineConfigWithDefaults({
   title: 'GHA Cache Server',
   description:
-    'Type-safe capability-based access control library for fine-grained permissions and authorization',
-  base: '/gha-cache-server',
-  vite: {
-    server: {
-      port: 5178,
+    "Self-hosted GitHub Actions cache server implementation. Compatible with official 'actions/cache' action",
+  port: 5178,
+  repo: 'falcondev-oss/github-actions-cache-server',
+  url: 'https://gha-cache-server.falcondev.io',
+  config: {
+    themeConfig: {
+      sidebar: [
+        {
+          text: 'Guide',
+          items: [
+            {
+              text: 'Getting Started',
+              link: '/getting-started',
+            },
+            {
+              text: 'Storage Drivers',
+              link: '/storage-drivers',
+            },
+            {
+              text: 'Database Drivers',
+              link: '/database-drivers',
+            },
+            {
+              text: 'How it works',
+              link: '/how-it-works',
+            },
+          ],
+        },
+        {
+          text: 'Storage Drivers',
+          items: [
+            {
+              text: 'File System',
+              link: '/storage-drivers/file-system',
+            },
+            {
+              text: 'Google Cloud Storage',
+              link: '/storage-drivers/google-cloud-storage',
+            },
+            {
+              text: 'S3 / MinIO',
+              link: '/storage-drivers/s3',
+            },
+          ],
+        },
+        {
+          text: 'Database Drivers',
+          items: [
+            {
+              text: 'MySQL',
+              link: '/database-drivers/mysql',
+            },
+            {
+              text: 'PostgreSQL',
+              link: '/database-drivers/postgres',
+            },
+            {
+              text: 'SQLite',
+              link: '/database-drivers/sqlite',
+            },
+          ],
+        },
+      ],
     },
-  },
-  themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
-    nav: [
-      { text: 'Guide', link: '/guide' },
-      { text: 'Examples', link: '/examples' },
-    ],
-
-    sidebar: [
-      {
-        text: 'Getting Started',
-        link: '/getting-started',
-      },
-      {
-        text: 'Guide',
-        items: [
-          {
-            text: 'Basic Concepts',
-            link: '/guide/basic-concepts',
-          },
-        ],
-      },
-    ],
-    socialLinks: [{ icon: 'github', link: 'https://github.com/falcondev-oss/caps' }],
-    logo: '/logo.svg',
   },
 })

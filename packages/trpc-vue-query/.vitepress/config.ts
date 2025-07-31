@@ -4,35 +4,8 @@ export default defineConfigWithDefaults({
   title: 'tRPC Vue Query',
   description:
     'Type-safe capability-based access control library for fine-grained permissions and authorization',
-  base: '/trpc-vue-query',
-  vite: {
-    server: {
-      port: 5176,
-    },
-  },
-  themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
-    nav: [
-      { text: 'Guide', link: '/guide' },
-      { text: 'Examples', link: '/examples' },
-    ],
-
-    sidebar: [
-      {
-        text: 'Getting Started',
-        link: '/getting-started',
-      },
-      {
-        text: 'Guide',
-        items: [
-          {
-            text: 'Basic Concepts',
-            link: '/guide/basic-concepts',
-          },
-        ],
-      },
-    ],
-    socialLinks: [{ icon: 'github', link: 'https://github.com/falcondev-oss/caps' }],
-    logo: '/logo.svg',
-  },
+  port: 5176,
+  repo: 'falcondev-oss/trpc-vue-query',
+  url: 'https://trpc-vue-query.falcondev.io',
+  config: {},
 })

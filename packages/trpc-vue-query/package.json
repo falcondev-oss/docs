@@ -1,0 +1,9 @@
+{
+  "name": "trpc-vue-query",
+  "type": "module",
+  "scripts": {
+    "build": "vitepress build",
+    "dev": "vitepress dev",
+    "deploy": "wrangler deploy"
+  }
+}
