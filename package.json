@@ -6,7 +6,7 @@
   "packageManager": "pnpm@10.13.1",
   "engines": {
     "node": "^22.14.0",
-    "pnpm": "^10.11.1"
+    "pnpm": "^10.13.2"
   },
   "scripts": {
     "dev": "turbo dev",
