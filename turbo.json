@@ -1,7 +1,11 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
-  "globalPassThroughEnv": ["CLOUDFLARE_ACCOUNT_ID"],
+  "globalPassThroughEnv": [
+    "CLOUDFLARE_ACCOUNT_ID",
+    "CLOUDFLARE_API_TOKEN",
+    "CLOUDFLARE_ACCOUNT_ID"
+  ],
   "globalDependencies": ["default-config.ts", "theme/**"],
   "tasks": {
     "deploy": {
