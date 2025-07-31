@@ -21,26 +21,17 @@ jobs:
       - name: pnpm install
         uses: falcondev-it/.github/actions/pnpm-install@master
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Build
-        shell: bash
-        run: pnpm run build
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
         with:
-          path: ./dist
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
 
-  deploy:
-    environment:
-      name: GitHub Pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Build & Deploy
+        shell: bash
+        run: pnpm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

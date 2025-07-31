@@ -40,7 +40,7 @@ importers:
         version: 3.5.18(typescript@5.8.3)
     devDependencies:
       turbo:
-        specifier: ^2.5.5
+        specifier: latest
         version: 2.5.5
       vite:
         specifier: ^7.0.6
@@ -65,6 +65,8 @@ importers:
   packages/lang: {}
 
   packages/nitro-trpc-event-handler: {}
+
+  packages/root: {}
 
   packages/trpc-vue-query: {}
 
