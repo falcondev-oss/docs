@@ -1,21 +1,24 @@
 ---
 title: How it works
 description: How the cache server integrates with GitHub Actions
+outline: [2, 4]
 ---
 
 # {{ $frontmatter.title }}
 
 {{ $frontmatter.description }}
 
-## 1. Reverse-Engineering
+## Reverse-Engineered API
 
 We replicate the official cache API by examining runner requests and the actions/cache source. See GitHub docs on cache keys.
 
-## 2. Configuring the Runner
+## Self-Hosted Runner Setup
 
-The runner overrides `ACTIONS_RESULTS_URL` with its internal endpoint. We patched the binary by replacing `ACTIONS_RESULTS_URL` with `ACTIONS_RESULTS_ORL` (keeping the same length) to allow a custom cache URL.
+### Binary Patch
 
-```c#
+The runner overrides `ACTIONS_RESULTS_URL` with GitHub's official endpoint.
+
+```c# [Excerpt from the runner source]
 var systemConnection = ExecutionContext.Global.Endpoints.Single(x => string.Equals(x.Name, WellKnownServiceEndpointNames.SystemVssConnection, StringComparison.OrdinalIgnoreCase));
 Environment["ACTIONS_RUNTIME_URL"] = systemConnection.Url.AbsoluteUri;
 Environment["ACTIONS_RUNTIME_TOKEN"] = systemConnection.Authorization.Parameters[EndpointAuthorizationParameters.AccessToken];
@@ -42,3 +45,5 @@ if (ExecutionContext.Global.Variables.GetBoolean("actions_uses_cache_service_v2"
     Environment["ACTIONS_CACHE_SERVICE_V2"] = bool.TrueString;
 }
 ```
+
+We patched the binary by replacing the strings `ACTIONS_RESULTS_URL` with `ACTIONS_RESULTS_ORL`, so that the runner overrides a dummy environment variable instead.

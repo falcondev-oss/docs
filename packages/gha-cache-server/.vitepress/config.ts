@@ -17,14 +17,14 @@ export default defineConfigWithDefaults({
               text: 'Getting Started',
               link: '/getting-started',
             },
-            {
-              text: 'Storage Drivers',
-              link: '/storage-drivers',
-            },
-            {
-              text: 'Database Drivers',
-              link: '/database-drivers',
-            },
+            // {
+            //   text: 'Storage Drivers',
+            //   link: '/storage-drivers',
+            // },
+            // {
+            //   text: 'Database Drivers',
+            //   link: '/database-drivers',
+            // },
             {
               text: 'How it works',
               link: '/how-it-works',
@@ -35,6 +35,10 @@ export default defineConfigWithDefaults({
           text: 'Storage Drivers',
           items: [
             {
+              text: 'S3 / MinIO',
+              link: '/storage-drivers/s3',
+            },
+            {
               text: 'File System',
               link: '/storage-drivers/file-system',
             },
@@ -42,22 +46,18 @@ export default defineConfigWithDefaults({
               text: 'Google Cloud Storage',
               link: '/storage-drivers/google-cloud-storage',
             },
-            {
-              text: 'S3 / MinIO',
-              link: '/storage-drivers/s3',
-            },
           ],
         },
         {
           text: 'Database Drivers',
           items: [
             {
-              text: 'MySQL',
-              link: '/database-drivers/mysql',
-            },
-            {
               text: 'PostgreSQL',
               link: '/database-drivers/postgres',
+            },
+            {
+              text: 'MySQL',
+              link: '/database-drivers/mysql',
             },
             {
               text: 'SQLite',

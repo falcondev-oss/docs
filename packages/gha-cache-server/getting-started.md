@@ -1,15 +1,16 @@
 ---
 title: Getting Started
 description: The cache server is available as a Docker image and can be deployed via Docker Compose or Kubernetes.
+outline: [2, 4]
 ---
 
 # {{ $frontmatter.title }}
 
 {{ $frontmatter.description }}
 
-## 1. Deploying the Cache Server
+## 1. Deployment
 
-### Using Docker Compose
+### Docker
 
 ```yaml [docker-compose.yml]
 services:
@@ -26,18 +27,20 @@ volumes:
   cache-data:
 ```
 
-### Using Kubernetes with Helm
+### Kubernetes with Helm
 
 You can deploy the cache server in Kubernetes using the Helm chart hosted in a OCI repository.
 
 #### Prerequisites
 
-- Helm version 3.8.0 or later (required for OCI support).
-- A running Kubernetes cluster.
+- Helm version 3.8.0 or later (required for OCI support)
+- A running Kubernetes cluster
 
 #### Steps
 
-1. Install the Helm chart:
+<br>
+
+##### 1. Install the Helm chart
 
 ```bash
 helm install <release-name> oci://ghcr.io/falcondev-oss/charts/github-actions-cache-server
@@ -45,7 +48,7 @@ helm install <release-name> oci://ghcr.io/falcondev-oss/charts/github-actions-ca
 
 Replace `<release-name>` with your desired release name (e.g., `cache-server`). This will deploy the cache server with all default values.
 
-2. Verify the deployment:
+##### 2. Verify the deployment
 
 ```bash
 kubectl get deployments
@@ -54,7 +57,7 @@ kubectl get svc
 
 Ensure the deployment `<release-name>-github-actions-cache-server` is running and the service is accessible.
 
-#### Customizing the Deployment
+#### Customization
 
 To customize the deployment, you can override the default values by creating a `values.yaml` file.
 
@@ -130,29 +133,34 @@ The port the server should listen on.
 
 The directory to use for temporary files.
 
-## 2. Setup with Self-Hosted Runners
+## 2. Self-Hosted Runner Setup
 
-Set the `ACTIONS_RESULTS_URL` on your runner to the API URL (with a trailing slash).
+Set the environment variable `ACTIONS_RESULTS_URL` on your runner to the Cache Server API URL.
 
 ::: warning
-
 Ensure `ACTIONS_RESULTS_URL` ends with a trailing slash.
-
 :::
 
-### Runner Configuration
+Because the runner does not allow setting the `ACTIONS_RESULTS_URL` yourself, we need to patch the runner binary/source to allow configuring it.
 
-For Docker:
+You can patch the runner binary yourself or use our forked runner image that has its source code modified.
+
+### Forked Runner (recommended)
+
+We provide a forked runner image that has the source code modified to allow setting `ACTIONS_RESULTS_URL` without patching the binary.
+
+- Repo: [falcondev-oss/github-actions-runner](https://github.com/falcondev-oss/github-actions-runner)
+- Image: `ghcr.io/falcondev-oss/actions-runner:latest`
+
+### Binary Patch
+
+::: code-group
 
 ```dockerfile [Dockerfile]
 FROM ghcr.io/actions/actions-runner:latest
 # Modify runner binary to retain custom ACTIONS_RESULTS_URL
 RUN sed -i 's/\x41\x00\x43\x00\x54\x00\x49\x00\x4F\x00\x4E\x00\x53\x00\x5F\x00\x52\x00\x45\x00\x53\x00\x55\x00\x4C\x00\x54\x00\x53\x00\x5F\x00\x55\x00\x52\x00\x4C\x00/\x41\x00\x43\x00\x54\x00\x49\x00\x4F\x00\x4E\x00\x53\x00\x5F\x00\x52\x00\x45\x00\x53\x00\x55\x00\x4C\x00\x54\x00\x53\x00\x5F\x00\x4F\x00\x52\x00\x4C\x00/g' /home/runner/bin/Runner.Worker.dll
 ```
-
-For Bare Metal, similar commands apply:
-
-::: code-group
 
 ```bash [Linux]
 sed -i 's/\x41\x00\x43\x00\x54\x00\x49\x00\x4F\x00\x4E\x00\x53\x00\x5F\x00\x52\x00\x45\x00\x53\x00\x55\x00\x4C\x00\x54\x00\x53\x00\x5F\x00\x55\x00\x52\x00\x4C\x00/\x41\x00\x43\x00\x54\x00\x49\x00\x4F\x00\x4E\x00\x53\x00\x5F\x00\x52\x00\x45\x00\x53\x00\x55\x00\x4C\x00\x54\x00\x53\x00\x5F\x00\x4F\x00\x52\x00\x4C\x00/g' /path_to_your_runner/bin/Runner.Worker.dll
@@ -170,13 +178,13 @@ gsed -i 's/\x41\x00\x43\x00\x54\x00\x49\x00\x4F\x00\x4E\x00\x53\x00\x5F\x00\x52\
 
 This patch prevents the runner from overwriting your custom `ACTIONS_RESULTS_URL`.
 
+For more information, see [How it works](/how-it-works).
+
 ::: info
-
-It is recommended to install zstd on your runners for faster compression and decompression.
-
+It is recommended to install `zstd` on your runners for faster compression and decompression.
 :::
 
-## 3. Using the Cache Server
+## 3. Usage
 
 There is no need to change any of your workflows! 🔥
 
