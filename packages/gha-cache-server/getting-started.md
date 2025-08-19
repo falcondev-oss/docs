@@ -77,7 +77,13 @@ helm install <release-name> oci://ghcr.io/falcondev-oss/charts/github-actions-ca
 
 - Example: `http://localhost:3000`
 
-The base URL of your cache server. This needs to be accessible by your runners as it is used for making API requests and downloading cached files.
+The base URL of your cache server. This needs to be accessible by your runners as it is used for cache uploads and downloads.
+
+::: warning
+
+Make sure the actions runner can reach the cache server on this url!
+
+:::
 
 #### `STORAGE_DRIVER`
 
@@ -147,7 +153,7 @@ You can patch the runner binary yourself or use our forked runner image that has
 
 ### Forked Runner (recommended)
 
-We provide a forked runner image that has the source code modified to allow setting `ACTIONS_RESULTS_URL` without patching the binary.
+We provide a forked runner image that has the source code modified to allow overriding `ACTIONS_RESULTS_URL` by setting `CUSTOM_ACTIONS_RESULTS_URL`.
 
 - Repo: [falcondev-oss/github-actions-runner](https://github.com/falcondev-oss/github-actions-runner)
 - Image: `ghcr.io/falcondev-oss/actions-runner:latest`
