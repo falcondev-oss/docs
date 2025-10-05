@@ -54,6 +54,15 @@ groupedFeatures:
       src: https://trpc-vue-query.falcondev.io/logo.svg
       alt: tRPC Vue Query
 
+  - title: Queue
+    details: Type-safe job queues built on BullMQ and Standard Schema
+    link: https://github.com/falcondev-oss/queue
+    linkText: Learn more
+    group: 1
+    icon:
+      src: https://queue.falcondev.io/logo.svg
+      alt: Queue
+
   - title: GHA Cache Server
     details: Self-Hosted Cache Server for GitHub Actions
     link: https://gha-cache-server.falcondev.io
@@ -74,8 +83,8 @@ groupedFeatures:
 
   - title: configs
     details: Our opinionated configs for development tools
-    #link: https://configs.falcondev.io
-    linkText: Coming Soon
+    link: https://github.com/falcondev-oss/configs
+    linkText: Learn more
     group: 2
     icon:
       src: https://configs.falcondev.io/logo.svg

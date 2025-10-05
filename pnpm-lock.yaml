@@ -66,6 +66,8 @@ importers:
 
   packages/nitro-trpc-event-handler: {}
 
+  packages/queue: {}
+
   packages/root: {}
 
   packages/trpc-vue-query: {}
