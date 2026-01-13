@@ -15,13 +15,17 @@ outline: [2, 4]
 ```yaml [docker-compose.yml]
 services:
   cache-server:
-    image: ghcr.io/falcondev-oss/github-actions-cache-server:latest
+    image: ghcr.io/falcondev-oss/github-actions-cache-server
     ports:
       - '3000:3000'
     environment:
       API_BASE_URL: http://localhost:3000
+      STORAGE_DRIVER: filesystem
+      STORAGE_FILESYSTEM_PATH: /data/cache
+      DB_DRIVER: sqlite
+      DB_SQLITE_PATH: /data/cache-server.db
     volumes:
-      - cache-data:/app/.data
+      - cache-data:/data
 
 volumes:
   cache-data:
@@ -115,29 +119,11 @@ The actions runner needs to be able to reach the storage provider directly to us
 
 The number of days to keep stale cache data and metadata before deleting it. Set to `0` to disable cache cleanup.
 
-#### `CACHE_CLEANUP_CRON`
-
-- Default: `0 0 * * *`
-
-The cron schedule for running the cache cleanup job.
-
-#### `UPLOAD_CLEANUP_CRON`
-
-- Default: `*/10 * * * *`
-
-The cron schedule for running the upload cleanup job. This job will delete any dangling (failed or incomplete) uploads.
-
 #### `NITRO_PORT`
 
 - Default: `3000`
 
 The port the server should listen on.
-
-#### `TEMP_DIR`
-
-- Default: os temp dir
-
-The directory to use for temporary files.
 
 ## 2. Self-Hosted Runner Setup
 
