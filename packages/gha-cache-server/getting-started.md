@@ -125,6 +125,16 @@ The number of days to keep stale cache data and metadata before deleting it. Set
 
 The port the server should listen on.
 
+#### `SKIP_TOKEN_VALIDATION`
+
+- Default: `false`
+
+Skip verification of the GitHub token used for computing the cache scope. This is useful for testing and development purposes, but should not be used in production.
+
+#### `MANAGEMENT_API_KEY`
+
+Set this to a random string to enable the management API. Docs can be found at `https://<your-cache-server-url>/management-api/_docs`.
+
 ## 2. Self-Hosted Runner Setup
 
 Set the environment variable `ACTIONS_RESULTS_URL` on your runner to the Cache Server API URL.
