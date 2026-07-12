@@ -3,10 +3,9 @@
   "type": "module",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "pnpm@10.18.0",
   "engines": {
-    "node": "^22.14.0",
-    "pnpm": "^10.14.0"
+    "node": "24",
+    "pnpm": "11"
   },
   "scripts": {
     "dev": "turbo dev",
