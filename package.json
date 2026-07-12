@@ -7,6 +7,12 @@
     "node": "24",
     "pnpm": "11"
   },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.11.0"
+    }
+  },
   "scripts": {
     "dev": "turbo dev",
     "deploy": "turbo deploy",
