@@ -166,6 +166,10 @@ We provide a forked runner image that has the source code modified to allow over
 - Repo: [falcondev-oss/github-actions-runner](https://github.com/falcondev-oss/github-actions-runner)
 - Image: `ghcr.io/falcondev-oss/actions-runner:latest`
 
+::: tip Auto-update is handled for you
+Recent forked-runner images skip runner self-update while `CUSTOM_ACTIONS_RESULTS_URL` is set, so a server-triggered update can't silently overwrite the patched binary and revert you to GitHub's central cache. You still need to update manually — see [Keep the runner up to date](#keep-the-runner-up-to-date) below.
+:::
+
 ### Binary Patch
 
 ::: code-group
@@ -191,6 +195,14 @@ gsed -i 's/\x41\x00\x43\x00\x54\x00\x49\x00\x4F\x00\x4E\x00\x53\x00\x5F\x00\x52\
 :::
 
 This patch prevents the runner from overwriting your custom `ACTIONS_RESULTS_URL`.
+
+::: warning Disable runner auto-update
+By default the runner self-updates when GitHub pushes a new version, which restores the stock binary and **silently reverts you to GitHub's central cache** — no error, caching just stops. A binary patch does not survive that. Register the runner with `config.sh --disableupdate` (or set `disableUpdate: true` with [ARC](https://github.com/actions/actions-runner-controller)) to stop auto-updates; it works on both github.com and GitHub Enterprise Server. The [forked runner](#forked-runner-recommended) skips self-update automatically while `CUSTOM_ACTIONS_RESULTS_URL` is set.
+:::
+
+### Keep the runner up to date
+
+Whichever approach you use, GitHub still requires self-hosted runners to stay current. If a runner falls more than ~30 days behind the latest release — or below GitHub's enforced minimum version — GitHub **stops queuing jobs to it**. So you must update on your own schedule: pull the latest forked-runner image (or rebuild your patched image) and re-deploy periodically. Freezing a runner forever is not an option.
 
 For more information, see [How it works](/how-it-works).
 
