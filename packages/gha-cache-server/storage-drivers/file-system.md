@@ -16,3 +16,5 @@ Driver: `filesystem`
 - Default: `.data/storage/filesystem`
 
 The path to the filesystem storage location. The folder will be created if it does not exist.
+
+The cache server process needs read and write access to this path (and permission to create it). No other permissions are required for this driver.
