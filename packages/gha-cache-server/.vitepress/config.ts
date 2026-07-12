@@ -29,6 +29,10 @@ export default defineConfigWithDefaults({
               text: 'How it works',
               link: '/how-it-works',
             },
+            {
+              text: 'Metrics',
+              link: '/metrics',
+            },
           ],
         },
         {
