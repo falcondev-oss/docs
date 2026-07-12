@@ -113,6 +113,18 @@ The actions runner needs to be able to reach the storage provider directly to us
 
 :::
 
+#### `DEFAULT_ACTIONS_RESULTS_URL`
+
+- Default: `https://results-receiver.actions.githubusercontent.com`
+
+The upstream GitHub Actions Results service that requests the cache server does not handle (e.g. artifact uploads/downloads) are transparently forwarded to. On **GitHub Enterprise Server** this must point at your instance's Results host (see [GitHub Enterprise Server](#github-enterprise-server-ghes)).
+
+#### `ACTIONS_TOKEN_ISSUER`
+
+- Default: `https://token.actions.githubusercontent.com`
+
+The OIDC issuer whose signature the cache server verifies on runner tokens. The JWKS endpoint is derived as `{issuer}/.well-known/jwks`. Only change this for **GitHub Enterprise Server**, where tokens are issued by your instance (see [GitHub Enterprise Server](#github-enterprise-server-ghes)).
+
 #### `CACHE_CLEANUP_OLDER_THAN_DAYS`
 
 - Default: `90`
@@ -191,3 +203,17 @@ It is recommended to install `zstd` on your runners for faster compression and d
 There is no need to change any of your workflows! 🔥
 
 If you've set up your self-hosted runners correctly, they will automatically use the cache server for caching.
+
+## GitHub Enterprise Server (GHES)
+
+GHES is supported on a best-effort basis. The cache server implements the **v2** cache protocol only, and GHES hard-codes a few values differently from github.com, so a GHES deployment needs the following on top of the standard setup:
+
+1. **The v2 cache service must be enabled on your instance.** The runner only talks to `ACTIONS_RESULTS_URL` (and therefore the cache server) when GitHub sets `ACTIONS_CACHE_SERVICE_V2=true` on it. If your GHES version does not enable v2, the runner falls back to the legacy v1 protocol, which the cache server does not implement — caching will not work. You can confirm v2 is active by checking for `ACTIONS_CACHE_SERVICE_V2` in the runner's environment.
+
+   ::: warning
+   `ACTIONS_CACHE_URL` is the legacy v1 endpoint and is **not** used by the cache server. Setting it has no effect.
+   :::
+
+2. **Point token validation at your instance.** GHES issues runner tokens from your own host, so set [`ACTIONS_TOKEN_ISSUER`](#actions-token-issuer) to your instance's issuer — the exact `iss` claim of a runner's OIDC token (decode one to confirm the value). The cache server derives the JWKS endpoint as `{issuer}/.well-known/jwks`; if your instance serves keys elsewhere, this won't work yet — please open an issue. Without a matching issuer, every request is rejected with `401 Invalid token`.
+
+3. **Point Results passthrough at your instance.** Set [`DEFAULT_ACTIONS_RESULTS_URL`](#default-actions-results-url) to your instance's Results host (e.g. `https://results-receiver.actions.<your-ghes-host>`). Otherwise artifact uploads/downloads and other passthrough requests are forwarded to github.com and fail.
