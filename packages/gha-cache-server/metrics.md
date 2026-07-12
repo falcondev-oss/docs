@@ -31,6 +31,7 @@ scrape_configs:
 | -------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------- |
 | `cache_requests_total{result="hit"\|"miss"}` | counter | Cache download-URL lookups by result. A restore-key prefix match counts as a `hit`.                         |
 | `cache_uploads_total`                        | counter | Cache uploads finalized into cache entries.                                                                 |
+| `cache_storage_bytes`                        | gauge   | Total size of finalized cache payloads currently in storage.                                                |
 | `process_*`, `nodejs_*`                      | gauge   | Default process metrics: CPU, resident memory, `process_start_time_seconds` (uptime), event loop, and heap. |
 
 Rates are derived in [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) — e.g. requests per minute and hit ratio:
@@ -43,6 +44,17 @@ rate(cache_requests_total[1m]) * 60
 sum(rate(cache_requests_total{result="hit"}[5m]))
   / sum(rate(cache_requests_total[5m]))
 ```
+
+When [`CACHE_MAX_SIZE_BYTES`](/getting-started#cache-max-size-bytes) is configured, you can chart how full the cache is against the budget:
+
+```promql
+# fraction of the budget in use (0–1)
+sum(cache_storage_bytes) / <CACHE_MAX_SIZE_BYTES>
+```
+
+::: info
+`cache_storage_bytes` reflects payload sizes recorded at upload time. Entries created before capacity tracking was enabled count as `0` until reconciled on the next server startup.
+:::
 
 ## Scaling and multiple workers
 

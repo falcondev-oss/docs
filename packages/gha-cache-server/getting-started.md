@@ -131,6 +131,25 @@ The OIDC issuer whose signature the cache server verifies on runner tokens. The 
 
 The number of days to keep stale cache data and metadata before deleting it. Set to `0` to disable cache cleanup.
 
+#### `CACHE_MAX_SIZE_BYTES`
+
+- Optional
+
+Hard cap, in bytes, on the total size of finalized cache payloads. When set, the server runs **capacity-based eviction** after each completed upload: if the total exceeds this budget, the least-recently-used cache entries are deleted until usage is back down to 90% of the budget. Recency is the last time an entry was downloaded, falling back to when it was last saved. Entries with an in-progress download are never evicted.
+
+Applies to any storage driver. Leave unset for unlimited object storage, or use `CACHE_FILESYSTEM_MAX_USAGE_PERCENT` below to cap by disk usage instead.
+
+::: tip
+Eviction runs _after_ an upload finalizes, so the total may briefly exceed the budget under concurrent uploads. Leave headroom for in-flight uploads.
+:::
+
+#### `CACHE_FILESYSTEM_MAX_USAGE_PERCENT`
+
+- Default: `90`
+- Only applies to the `filesystem` storage driver when `CACHE_MAX_SIZE_BYTES` is **not** set.
+
+Maximum percentage of the storage volume's total capacity (including data outside the cache directory) that may be used before capacity-based eviction starts reclaiming space. Ignored when `CACHE_MAX_SIZE_BYTES` is set.
+
 #### `NITRO_PORT`
 
 - Default: `3000`
