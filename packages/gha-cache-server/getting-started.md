@@ -123,7 +123,19 @@ The upstream GitHub Actions Results service that requests the cache server does 
 
 - Default: `https://token.actions.githubusercontent.com`
 
-The OIDC issuer whose signature the cache server verifies on runner tokens. The JWKS endpoint is derived as `{issuer}/.well-known/jwks`. Only change this for **GitHub Enterprise Server**, where tokens are issued by your instance (see [GitHub Enterprise Server](#github-enterprise-server-ghes)).
+The OIDC issuer whose signature the cache server verifies on runner tokens. It must match the `iss` claim of a runner's OIDC token exactly. The signing keys are looked up from the issuer's OIDC discovery document (`{issuer}/.well-known/openid-configuration`), so the JWKS location is picked up automatically.
+
+Change this if your runner tokens are not issued by `https://token.actions.githubusercontent.com`:
+
+- **GitHub Enterprise Server**, where tokens are issued by your own instance (see [GitHub Enterprise Server](#github-enterprise-server-ghes)).
+- **GitHub Enterprise Cloud with a [customized issuer](https://docs.github.com/en/enterprise-cloud@latest/actions/reference/security/oidc#customizing-the-issuer-value-for-an-enterprise)**, where the issuer becomes `https://token.actions.githubusercontent.com/<enterpriseSlug>`. Nothing else is needed — the JWKS stays at the default host, and discovery finds it there.
+
+#### `ACTIONS_TOKEN_JWKS_URL`
+
+- Optional
+- Default: discovered from [`ACTIONS_TOKEN_ISSUER`](#actions-token-issuer)
+
+Explicit JWKS endpoint, skipping OIDC discovery. You should not need this: the URL is normally discovered from the issuer, and if discovery is unavailable the server falls back to `{issuer}/.well-known/jwks`. Set it only if your deployment serves its keys somewhere neither of those finds — a warning naming the fallback URL is logged when discovery fails.
 
 #### `CACHE_CLEANUP_OLDER_THAN_DAYS`
 
@@ -245,6 +257,6 @@ GHES is supported on a best-effort basis. The cache server implements the **v2**
    `ACTIONS_CACHE_URL` is the legacy v1 endpoint and is **not** used by the cache server. Setting it has no effect.
    :::
 
-2. **Point token validation at your instance.** GHES issues runner tokens from your own host, so set [`ACTIONS_TOKEN_ISSUER`](#actions-token-issuer) to your instance's issuer — the exact `iss` claim of a runner's OIDC token (decode one to confirm the value). The cache server derives the JWKS endpoint as `{issuer}/.well-known/jwks`; if your instance serves keys elsewhere, this won't work yet — please open an issue. Without a matching issuer, every request is rejected with `401 Invalid token`.
+2. **Point token validation at your instance.** GHES issues runner tokens from your own host, so set [`ACTIONS_TOKEN_ISSUER`](#actions-token-issuer) to your instance's issuer — the exact `iss` claim of a runner's OIDC token (decode one to confirm the value). The signing keys are then discovered from that issuer; if your instance serves neither a discovery document nor `{issuer}/.well-known/jwks`, point [`ACTIONS_TOKEN_JWKS_URL`](#actions-token-jwks-url) at the right endpoint. Without a matching issuer, every request is rejected with `401 Invalid token`.
 
 3. **Point Results passthrough at your instance.** Set [`DEFAULT_ACTIONS_RESULTS_URL`](#default-actions-results-url) to your instance's Results host (e.g. `https://results-receiver.actions.<your-ghes-host>`). Otherwise artifact uploads/downloads and other passthrough requests are forwarded to github.com and fail.
