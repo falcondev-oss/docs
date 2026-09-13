@@ -64,14 +64,16 @@ The API endpoint for GCS.
 
 All cache objects live under the `gh-actions-cache/` prefix in the bucket. The service account needs these IAM permissions on the bucket:
 
-| Permission              | Used for                                    |
-| ----------------------- | ------------------------------------------- |
-| `storage.buckets.get`   | Startup bucket check                        |
-| `storage.objects.get`   | Downloading cache entries, existence checks |
-| `storage.objects.list`  | Listing/counting cache objects              |
-| `storage.objects.create`| Uploading cache entries                     |
-| `storage.objects.delete`| Cache cleanup and abandoned uploads         |
+| Permission               | Used for                                    |
+| ------------------------ | ------------------------------------------- |
+| `storage.buckets.get`    | Startup bucket check                        |
+| `storage.objects.get`    | Downloading cache entries, existence checks |
+| `storage.objects.list`   | Listing/counting cache objects              |
+| `storage.objects.create` | Uploading cache entries, merging parts      |
+| `storage.objects.delete` | Cache cleanup and abandoned uploads         |
 
 The predefined [`roles/storage.objectAdmin`](https://cloud.google.com/storage/docs/access-control/iam-roles) role covers all the object permissions but **not** `storage.buckets.get`. Either grant `roles/storage.objectAdmin` together with `roles/storage.legacyBucketReader`, or create a custom role with the five permissions above.
 
 If you enable direct downloads (`ENABLE_DIRECT_DOWNLOADS`) without a `STORAGE_GCS_SERVICE_ACCOUNT_KEY` (i.e. using Application Default Credentials), signing download URLs additionally requires the `iam.serviceAccounts.signBlob` permission (granted by `roles/iam.serviceAccountTokenCreator`). This is not needed when a service account key file is provided, since URLs are then signed locally.
+
+With [`EAGER_MERGE`](/getting-started#eager-merge) the server merges parts inside the bucket using `compose`, covered by the permissions above. The merged object is a composite object; it downloads like any other object.

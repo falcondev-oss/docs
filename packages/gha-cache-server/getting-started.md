@@ -113,6 +113,20 @@ The actions runner needs to be able to reach the storage provider directly to us
 
 :::
 
+#### `EAGER_MERGE`
+
+- Default: `false`
+
+Cache data arrives in parts. By default the server merges them into one object on the first download, so with `ENABLE_DIRECT_DOWNLOADS` the first restore of every entry is still proxied through the server. With `EAGER_MERGE=true` the merge starts right after the upload completes, and the first restore can be a direct download.
+
+On S3 and GCS the merge happens inside the bucket, without the data passing through the server. On S3 this requires every part but the last to be at least 5 MiB (the default upload chunk size of `actions/cache` is 32 MiB; buildx uploads 1 MiB blocks and is merged by streaming instead). On the filesystem driver the server streams the parts into the merged file at upload time.
+
+::: warning
+
+Every entry occupies twice its size until the parts cleanup job removes the parts, including entries that are never restored. On S3, set an `AbortIncompleteMultipartUpload` lifecycle rule on the bucket so a server killed mid-merge does not leave billed multipart uploads behind.
+
+:::
+
 #### `DEFAULT_ACTIONS_RESULTS_URL`
 
 - Default: `https://results-receiver.actions.githubusercontent.com`
