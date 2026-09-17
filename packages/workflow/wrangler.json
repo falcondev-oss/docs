@@ -1,14 +1,14 @@
 {
   "compatibility_date": "2025-05-15",
-  "name": "docs-queue",
+  "name": "docs-workflow",
   "preview_urls": false,
   "routes": [
     {
-      "pattern": "queue.falcondev.io",
+      "pattern": "workflow.falcondev.io",
       "custom_domain": true
     },
     {
-      "pattern": "queue.falcondev.io/*",
+      "pattern": "workflow.falcondev.io/*",
       "zone_name": "falcondev.io"
     }
   ],
