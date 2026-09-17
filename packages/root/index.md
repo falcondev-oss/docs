@@ -54,14 +54,14 @@ groupedFeatures:
       src: https://trpc-vue-query.falcondev.io/logo.svg
       alt: tRPC Vue Query
 
-  - title: Queue
-    details: Type-safe job queues built on BullMQ and Standard Schema
-    link: https://github.com/falcondev-oss/queue
+  - title: Workflow
+    details: Durable, type-safe queue workers on Redis
+    link: https://github.com/falcondev-oss/workflow
     linkText: Learn more
     group: 1
     icon:
-      src: https://queue.falcondev.io/logo.svg
-      alt: Queue
+      src: https://workflow.falcondev.io/logo.svg
+      alt: Workflow
 
   - title: GHA Cache Server
     details: Self-Hosted Cache Server for GitHub Actions
