@@ -8,5 +8,5 @@ description: A list of storage drivers available for the GitHub Actions Cache Se
 {{ $frontmatter.description }}
 
 - [File System](/storage-drivers/file-system)
-- [S3 / MinIO](/storage-drivers/s3)
+- [S3 / RustFS](/storage-drivers/s3)
 - [GCS](/storage-drivers/google-cloud-storage)

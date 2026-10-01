@@ -39,7 +39,7 @@ export default defineConfigWithDefaults({
           text: 'Storage Drivers',
           items: [
             {
-              text: 'S3 / MinIO',
+              text: 'S3 / RustFS',
               link: '/storage-drivers/s3',
             },
             {
