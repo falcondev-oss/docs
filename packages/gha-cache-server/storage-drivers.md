@@ -10,3 +10,4 @@ description: A list of storage drivers available for the GitHub Actions Cache Se
 - [File System](/storage-drivers/file-system)
 - [S3 / RustFS](/storage-drivers/s3)
 - [GCS](/storage-drivers/google-cloud-storage)
+- [Azure Blob Storage](/storage-drivers/azure-blob-storage)
