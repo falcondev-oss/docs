@@ -19,7 +19,7 @@ hero:
 
 features:
   - title: Storage Drivers
-    details: Support for multiple storage drivers like S3, GCS, and file system.
+    details: Support for multiple storage drivers like S3, GCS, Azure Blob Storage, and file system.
     icon: 📦
   - title: No Workflow Changes
     details: No need to change any workflow files, just deploy and start using.

@@ -50,6 +50,10 @@ export default defineConfigWithDefaults({
               text: 'Google Cloud Storage',
               link: '/storage-drivers/google-cloud-storage',
             },
+            {
+              text: 'Azure Blob Storage',
+              link: '/storage-drivers/azure-blob-storage',
+            },
           ],
         },
         {
