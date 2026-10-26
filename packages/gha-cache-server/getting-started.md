@@ -119,13 +119,25 @@ The actions runner needs to be able to reach the storage provider directly to us
 
 Cache data arrives in parts. By default the server merges them into one object on the first download, so with `ENABLE_DIRECT_DOWNLOADS` the first restore of every entry is still proxied through the server. With `EAGER_MERGE=true` the merge starts right after the upload completes, and the first restore can be a direct download.
 
-On S3, GCS and Azure Blob Storage the merge happens inside the bucket or container, without the data passing through the server. On S3 this requires every part but the last to be at least 5 MiB (the default upload chunk size of `actions/cache` is 32 MiB; buildx uploads 1 MiB blocks and is merged by streaming instead). On the filesystem driver the server streams the parts into the merged file at upload time.
+On S3, GCS and Azure Blob Storage the parts stream through the server into the merged object. On the filesystem driver the merge is a file copy. Eager and lazy merges share the [`MAX_CONCURRENT_MERGES`](#max-concurrent-merges) limit.
 
 ::: warning
 
 Every entry occupies twice its size until the parts cleanup job removes the parts, including entries that are never restored. On S3, set an `AbortIncompleteMultipartUpload` lifecycle rule on the bucket so a server killed mid-merge does not leave billed multipart uploads behind.
 
 :::
+
+#### `MAX_CONCURRENT_MERGES`
+
+- Default: `16`
+
+How many merges one process runs at once, eager or lazy. Past that limit, restores stream the parts and a later download does the merge.
+
+#### `DOWNLOAD_IDLE_TIMEOUT_MS`
+
+- Default: `300000`
+
+Closes a connection whose client has not read a response for this long. `0` disables it.
 
 #### `DEFAULT_ACTIONS_RESULTS_URL`
 
@@ -176,11 +188,17 @@ Eviction runs _after_ an upload finalizes, so the total may briefly exceed the b
 
 Maximum percentage of the storage volume's total capacity (including data outside the cache directory) that may be used before capacity-based eviction starts reclaiming space. Ignored when `CACHE_MAX_SIZE_BYTES` is set.
 
-#### `NITRO_PORT`
+#### `PORT`
 
 - Default: `3000`
 
 The port the server should listen on.
+
+#### `HOST`
+
+- Default: all interfaces
+
+The interface the server should listen on.
 
 #### `SKIP_TOKEN_VALIDATION`
 

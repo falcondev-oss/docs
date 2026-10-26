@@ -27,12 +27,12 @@ scrape_configs:
 
 ## Exposed metrics
 
-| Metric                                       | Type    | Description                                                                                                 |
-| -------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------- |
-| `cache_requests_total{result="hit"\|"miss"}` | counter | Cache download-URL lookups by result. A restore-key prefix match counts as a `hit`.                         |
-| `cache_uploads_total`                        | counter | Cache uploads finalized into cache entries.                                                                 |
-| `cache_storage_bytes`                        | gauge   | Total size of finalized cache payloads currently in storage.                                                |
-| `process_*`, `nodejs_*`                      | gauge   | Default process metrics: CPU, resident memory, `process_start_time_seconds` (uptime), event loop, and heap. |
+| Metric                                       | Type    | Description                                                                                                               |
+| -------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `cache_requests_total{result="hit"\|"miss"}` | counter | Cache download-URL lookups by result. A restore-key prefix match counts as a `hit`.                                       |
+| `cache_uploads_total`                        | counter | Cache uploads finalized into cache entries.                                                                               |
+| `cache_storage_bytes`                        | gauge   | Total size of finalized cache payloads currently in storage.                                                              |
+| `process_*`                                  | gauge   | Default process metrics: CPU, resident memory, open file descriptors, threads, and `process_start_time_seconds` (uptime). |
 
 Rates are derived in [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) — e.g. requests per minute and hit ratio:
 
@@ -56,14 +56,10 @@ sum(cache_storage_bytes) / <CACHE_MAX_SIZE_BYTES>
 `cache_storage_bytes` reflects payload sizes recorded at upload time. Entries created before capacity tracking was enabled count as `0` until reconciled on the next server startup.
 :::
 
-## Scaling and multiple workers
+## Scaling
 
-Metrics are collected per process. In the default deployment — one worker per container — the numbers are exact, and multiple replicas are aggregated by Prometheus:
+Metrics are collected per process, so one server reports exact numbers. Multiple replicas are aggregated by Prometheus:
 
 ```promql
 sum(rate(cache_requests_total[5m])) by (result)
 ```
-
-::: warning
-Setting `NITRO_CLUSTER_WORKERS` above `1` runs several workers behind one shared port. A scrape reaches whichever worker answers, so counters reflect a single worker rather than the whole process group. For accurate metrics, keep one worker per container (the default) and scale horizontally with replicas.
-:::
