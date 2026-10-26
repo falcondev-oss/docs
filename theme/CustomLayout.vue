@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { groupBy, prop } from 'remeda'
-import { useData, useRoute } from 'vitepress'
-import DefaultTheme, { VPFeatures, useSidebar } from 'vitepress/theme'
-import { computed, onMounted, useTemplateRef, watch } from 'vue'
+import { useData } from 'vitepress'
+import DefaultTheme, { useSidebar, VPFeatures } from 'vitepress/theme'
+import { computed, useTemplateRef, watch } from 'vue'
 
 const { Layout } = DefaultTheme
 const sidebar = useSidebar()
@@ -39,7 +39,7 @@ watch(
 
 <template>
   <Layout>
-    <template #nav-bar-title-before v-if="!sidebar.hasSidebar.value && !fm.hideRootLink">
+    <template v-if="!sidebar.hasSidebar.value && !fm.hideRootLink" #nav-bar-title-before>
       <div class="header-title-prefix">
         <div ref="linkPlaceholder" href="https://falcondev.io" target="_blank">@falcondev-oss</div>
         <span>/</span>

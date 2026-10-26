@@ -1,5 +1,6 @@
+import type { DefaultTheme, UserConfig } from 'vitepress'
 import { defu } from 'defu'
-import { type DefaultTheme, defineConfig, type UserConfig } from 'vitepress'
+import { defineConfig } from 'vitepress'
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
 
 export function defineConfigWithDefaults(opts: {

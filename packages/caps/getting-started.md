@@ -335,7 +335,8 @@ adminCaps.user.subjects(allUsers).filter(['delete'], { delete: { delayed: true }
 For complex scenarios where subjects can have different "modes" or states:
 
 ```ts
-import { mode, type Modes } from '@falcondev-oss/caps'
+import type { Modes } from '@falcondev-oss/caps'
+import { mode } from '@falcondev-oss/caps'
 
 type DocumentModes = Modes<{
   draft: { content: string; authorId: string }
