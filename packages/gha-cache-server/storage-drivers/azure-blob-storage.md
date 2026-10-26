@@ -11,7 +11,7 @@ Driver: `azblob`
 
 ## Configuration
 
-The driver authenticates either with a connection string (shared key) or with an account name and Entra ID credentials from the environment (client secret, workload identity or managed identity). Set one or the other, not both.
+The driver authenticates either with a connection string (shared key) or with an account name and Entra ID credentials from the environment (workload identity, `AZURE_CLIENT_ID`/`AZURE_TENANT_ID`/`AZURE_CLIENT_SECRET`, or managed identity). Set one or the other, not both.
 
 The container must already exist. The server does not create it and fails on startup if it is missing.
 
@@ -137,4 +137,4 @@ All cache objects live under the `gh-actions-cache/` prefix in the container. A 
 | [Storage Blob Data Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-contributor) | Container or account | Reading, writing, listing and deleting cache blobs               |
 | [Storage Blob Delegator](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/storage#storage-blob-delegator)               | Account              | Signing SAS URLs, only if Contributor is scoped to the container |
 
-Direct downloads (`ENABLE_DIRECT_DOWNLOADS`) and uploads sign SAS URLs with a [user delegation key](https://learn.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas#assign-permissions-with-rbac). Requesting that key is an account-level operation: Storage Blob Data Contributor assigned on the account covers it, but if it is assigned on the container only, also grant Storage Blob Delegator on the account. With a connection string, URLs are signed locally with the shared key.
+Part uploads and direct downloads (`ENABLE_DIRECT_DOWNLOADS`) use SAS URLs signed with a [user delegation key](https://learn.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas#assign-permissions-with-rbac). Requesting that key is an account-level operation: Storage Blob Data Contributor assigned on the account covers it, but if it is assigned on the container only, also grant Storage Blob Delegator on the account. With a connection string, URLs are signed locally with the shared key. If signing fails, uploads fall back to block uploads through the server's credentials.
