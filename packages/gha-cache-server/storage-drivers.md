@@ -11,3 +11,9 @@ description: A list of storage drivers available for the GitHub Actions Cache Se
 - [S3 / RustFS](/storage-drivers/s3)
 - [GCS](/storage-drivers/google-cloud-storage)
 - [Azure Blob Storage](/storage-drivers/azure-blob-storage)
+
+## Object storage
+
+On S3, GCS and Azure Blob Storage, parts are uploaded through presigned URLs, so the credentials must be able to sign. Without that, uploads fall back to multipart.
+
+The server trusts an object it has seen to exist for a minute instead of checking storage on every cache hit. Data deleted behind the server's back (another replica, a bucket lifecycle rule) can still be promised to a runner for up to a minute.

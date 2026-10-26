@@ -31,6 +31,8 @@ volumes:
   cache-data:
 ```
 
+The image is a single static binary on [distroless](https://github.com/GoogleContainerTools/distroless), about 29 MB. It has no shell, so health checks must probe `GET /health` over HTTP instead of running a command inside the container.
+
 ### Kubernetes with Helm
 
 You can deploy the cache server in Kubernetes using the Helm chart hosted in a OCI repository.
@@ -119,11 +121,11 @@ The actions runner needs to be able to reach the storage provider directly to us
 
 Cache data arrives in parts. By default the server merges them into one object on the first download, so with `ENABLE_DIRECT_DOWNLOADS` the first restore of every entry is still proxied through the server. With `EAGER_MERGE=true` the merge starts right after the upload completes, and the first restore can be a direct download.
 
-On S3, GCS and Azure Blob Storage the merge happens inside the bucket or container, without the data passing through the server. On S3 this requires every part but the last to be at least 5 MiB (the default upload chunk size of `actions/cache` is 32 MiB; buildx uploads 1 MiB blocks and is merged by streaming instead). On the filesystem driver the server streams the parts into the merged file at upload time.
+On S3, GCS and Azure Blob Storage the server streams the parts through itself into the merged object, so every upload is read back once. On the filesystem driver the merge is a kernel copy (`copy_file_range`).
 
 ::: warning
 
-Every entry occupies twice its size until the parts cleanup job removes the parts, including entries that are never restored. On S3, set an `AbortIncompleteMultipartUpload` lifecycle rule on the bucket so a server killed mid-merge does not leave billed multipart uploads behind.
+Every entry occupies twice its size until the parts cleanup job removes the parts, including entries that are never restored.
 
 :::
 
@@ -155,7 +157,7 @@ Explicit JWKS endpoint, skipping OIDC discovery. You should not need this: the U
 
 - Default: `90`
 
-The number of days to keep stale cache data and metadata before deleting it. Set to `0` to disable cache cleanup.
+The number of days to keep stale cache data and metadata before deleting it. Set to `0` to disable cache cleanup. A negative value fails startup.
 
 #### `CACHE_MAX_SIZE_BYTES`
 
@@ -176,11 +178,17 @@ Eviction runs _after_ an upload finalizes, so the total may briefly exceed the b
 
 Maximum percentage of the storage volume's total capacity (including data outside the cache directory) that may be used before capacity-based eviction starts reclaiming space. Ignored when `CACHE_MAX_SIZE_BYTES` is set.
 
-#### `NITRO_PORT`
+#### `PORT`
 
 - Default: `3000`
 
 The port the server should listen on.
+
+#### `HOST`
+
+- Default: all interfaces
+
+The interface the server should listen on.
 
 #### `SKIP_TOKEN_VALIDATION`
 
@@ -190,7 +198,9 @@ Skip verification of the GitHub token used for computing the cache scope. This i
 
 #### `MANAGEMENT_API_KEY`
 
-Set this to a random string to enable the management API. Docs can be found at `https://<your-cache-server-url>/management-api/_docs`.
+Set this to a random string to enable the management API. Unset or empty disables it. Docs can be found at `https://<your-cache-server-url>/management-api/_docs`.
+
+`DELETE /management-api/storage-locations/{id}` answers `409` while the storage location is being downloaded.
 
 ## 2. Self-Hosted Runner Setup
 

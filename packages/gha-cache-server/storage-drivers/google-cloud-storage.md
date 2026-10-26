@@ -74,6 +74,4 @@ All cache objects live under the `gh-actions-cache/` prefix in the bucket. The s
 
 The predefined [`roles/storage.objectAdmin`](https://cloud.google.com/storage/docs/access-control/iam-roles) role covers all the object permissions but **not** `storage.buckets.get`. Either grant `roles/storage.objectAdmin` together with `roles/storage.legacyBucketReader`, or create a custom role with the five permissions above.
 
-If you enable direct downloads (`ENABLE_DIRECT_DOWNLOADS`) without a `STORAGE_GCS_SERVICE_ACCOUNT_KEY` (i.e. using Application Default Credentials), signing download URLs additionally requires the `iam.serviceAccounts.signBlob` permission (granted by `roles/iam.serviceAccountTokenCreator`). This is not needed when a service account key file is provided, since URLs are then signed locally.
-
-With [`EAGER_MERGE`](/getting-started#eager-merge) the server merges parts inside the bucket using `compose`, covered by the permissions above. The merged object is a composite object; it downloads like any other object.
+Parts are uploaded through signed URLs, and direct downloads (`ENABLE_DIRECT_DOWNLOADS`) hand out signed URLs too. Without a `STORAGE_GCS_SERVICE_ACCOUNT_KEY` (i.e. using Application Default Credentials), signing requires the `iam.serviceAccounts.signBlob` permission (granted by `roles/iam.serviceAccountTokenCreator`). Without it, uploads fall back to multipart and direct downloads fail. This is not needed when a service account key file is provided, since URLs are then signed locally.

@@ -21,4 +21,4 @@ The cache server process needs read and write access to this path (and permissio
 
 ## Eager merge
 
-The filesystem driver has no direct downloads, so [`EAGER_MERGE`](/getting-started#eager-merge) gains little here. It streams the parts into the merged file at upload time and doubles disk use per entry until the parts cleanup job runs. Leave it off unless you want the first restore to read a single file.
+The filesystem driver has no direct downloads, so [`EAGER_MERGE`](/getting-started#eager-merge) gains little here. It copies the parts into the merged file at upload time and doubles disk use per entry until the parts cleanup job runs. Leave it off unless you want the first restore to read a single file.
