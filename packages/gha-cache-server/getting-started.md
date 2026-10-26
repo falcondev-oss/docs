@@ -31,7 +31,7 @@ volumes:
   cache-data:
 ```
 
-The image is a single static Rust binary on [distroless](https://github.com/GoogleContainerTools/distroless), about 29 MB, with no Node.js runtime.
+The image is a single static binary on [distroless](https://github.com/GoogleContainerTools/distroless), about 29 MB. It has no shell, so health checks must probe `GET /health` over HTTP instead of running a command inside the container.
 
 ### Kubernetes with Helm
 
@@ -270,24 +270,6 @@ It is recommended to install `zstd` on your runners for faster compression and d
 There is no need to change any of your workflows! 🔥
 
 If you've set up your self-hosted runners correctly, they will automatically use the cache server for caching.
-
-## Upgrading from the Node.js server
-
-The server was rewritten in Rust ([#288](https://github.com/falcondev-oss/github-actions-cache-server/pull/288)). Swap the image; it keeps the same environment variables, database and storage. Rolling back to the previous image works on the same database and storage.
-
-Removed:
-
-- the `-caged` image tags and the Helm chart's `image.variant`
-- the oRPC endpoint `/management-api/_rpc` and the TypeScript SDK; the REST management API is unchanged
-- `NITRO_PORT` and `NITRO_HOST` (use [`PORT`](#port) and [`HOST`](#host)) and `BENCHMARK`
-
-Changed:
-
-- [Eager merge](#eager-merge) on S3, GCS and Azure Blob Storage streams the parts through the server instead of composing them inside the bucket.
-- [Object storage](/storage-drivers#object-storage) uploads parts through presigned URLs and trusts an object it has seen to exist for a minute.
-- [SQLite](/database-drivers/sqlite) runs in WAL mode with `synchronous=normal`.
-- [Metrics](/metrics): the `nodejs_*` metrics are gone and the `process_*` set differs slightly.
-- The image has no shell, so health checks and hooks that run commands inside the container fail. Probe `GET /health` over HTTP instead.
 
 ## GitHub Enterprise Server (GHES)
 
