@@ -121,13 +121,25 @@ The actions runner needs to be able to reach the storage provider directly to us
 
 Cache data arrives in parts. By default the server merges them into one object on the first download, so with `ENABLE_DIRECT_DOWNLOADS` the first restore of every entry is still proxied through the server. With `EAGER_MERGE=true` the merge starts right after the upload completes, and the first restore can be a direct download.
 
-On S3, GCS and Azure Blob Storage the server streams the parts through itself into the merged object, so every upload is read back once. On the filesystem driver the merge is a kernel copy (`copy_file_range`).
+On S3, GCS and Azure Blob Storage the server streams the parts through itself into the merged object, so every upload is read back once. On the filesystem driver the merge is a kernel copy (`copy_file_range`). Eager and lazy merges share the [`MAX_CONCURRENT_MERGES`](#max-concurrent-merges) limit.
 
 ::: warning
 
 Every entry occupies twice its size until the parts cleanup job removes the parts, including entries that are never restored.
 
 :::
+
+#### `MAX_CONCURRENT_MERGES`
+
+- Default: `16`
+
+How many merges one process runs at once, eager or lazy. Past that limit, restores stream the parts and a later download does the merge.
+
+#### `DOWNLOAD_IDLE_TIMEOUT_MS`
+
+- Default: `300000`
+
+Closes a connection whose client has not read a response for this long. `0` disables it.
 
 #### `DEFAULT_ACTIONS_RESULTS_URL`
 
