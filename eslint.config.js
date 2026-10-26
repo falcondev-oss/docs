@@ -14,3 +14,10 @@ export default eslintConfig({
       'unicorn/filename-case': ['error', { case: 'pascalCase' }],
     },
   })
+  .append({
+    // CSS imported after the theme re-export overrides the default theme's styles.
+    files: ['**/theme/index.ts'],
+    rules: {
+      'import/first': 'off',
+    },
+  })
