@@ -184,7 +184,7 @@ The OIDC issuer whose signature the cache server verifies on runner tokens. It m
 Change this if your runner tokens are not issued by `https://token.actions.githubusercontent.com`:
 
 - **GitHub Enterprise Server**, where tokens are issued by your own instance (see [GitHub Enterprise Server](#github-enterprise-server-ghes)).
-- **GitHub Enterprise Cloud with a [customized issuer](https://docs.github.com/en/enterprise-cloud@latest/actions/reference/security/oidc#customizing-the-issuer-value-for-an-enterprise)**, where the issuer becomes `https://token.actions.githubusercontent.com/<enterpriseSlug>`. Nothing else is needed — the JWKS stays at the default host, and discovery finds it there.
+- **GitHub Enterprise Cloud with a [customized issuer](https://docs.github.com/en/enterprise-cloud@latest/actions/reference/security/oidc#customizing-the-issuer-value-for-an-enterprise)**, where the issuer becomes `https://token.actions.githubusercontent.com/<enterpriseSlug>`. Nothing else is needed: the JWKS stays at the default host, and discovery finds it there.
 
 #### `ACTIONS_TOKEN_JWKS_URL`
 
@@ -300,7 +300,7 @@ We provide a forked runner image that has the source code modified to allow over
 - Image: `ghcr.io/falcondev-oss/actions-runner:latest`
 
 ::: tip Auto-update is handled for you
-Recent forked-runner images skip runner self-update while `CUSTOM_ACTIONS_RESULTS_URL` is set, so a server-triggered update can't silently overwrite the patched binary and revert you to GitHub's central cache. You still need to update manually — see [Keep the runner up to date](#keep-the-runner-up-to-date) below.
+Recent forked-runner images skip runner self-update while `CUSTOM_ACTIONS_RESULTS_URL` is set, so a server-triggered update can't silently overwrite the patched binary and revert you to GitHub's central cache. You still need to update manually, see [Keep the runner up to date](#keep-the-runner-up-to-date) below.
 :::
 
 ### Binary Patch
@@ -330,12 +330,12 @@ gsed -i 's/\x41\x00\x43\x00\x54\x00\x49\x00\x4F\x00\x4E\x00\x53\x00\x5F\x00\x52\
 This patch prevents the runner from overwriting your custom `ACTIONS_RESULTS_URL`.
 
 ::: warning Disable runner auto-update
-By default the runner self-updates when GitHub pushes a new version, which restores the stock binary and **silently reverts you to GitHub's central cache** — no error, caching just stops. A binary patch does not survive that. Register the runner with `config.sh --disableupdate` (or set `disableUpdate: true` with [ARC](https://github.com/actions/actions-runner-controller)) to stop auto-updates; it works on both github.com and GitHub Enterprise Server. The [forked runner](#forked-runner-recommended) skips self-update automatically while `CUSTOM_ACTIONS_RESULTS_URL` is set.
+By default the runner self-updates when GitHub pushes a new version, which restores the stock binary and **silently reverts you to GitHub's central cache**. There is no error, caching just stops. A binary patch does not survive that. Register the runner with `config.sh --disableupdate` (or set `disableUpdate: true` with [ARC](https://github.com/actions/actions-runner-controller)) to stop auto-updates; it works on both github.com and GitHub Enterprise Server. The [forked runner](#forked-runner-recommended) skips self-update automatically while `CUSTOM_ACTIONS_RESULTS_URL` is set.
 :::
 
 ### Keep the runner up to date
 
-Whichever approach you use, GitHub still requires self-hosted runners to stay current. If a runner falls more than ~30 days behind the latest release — or below GitHub's enforced minimum version — GitHub **stops queuing jobs to it**. So you must update on your own schedule: pull the latest forked-runner image (or rebuild your patched image) and re-deploy periodically. Freezing a runner forever is not an option.
+Whichever approach you use, GitHub still requires self-hosted runners to stay current. If a runner falls more than ~30 days behind the latest release, or below GitHub's enforced minimum version, GitHub **stops queuing jobs to it**. So you must update on your own schedule: pull the latest forked-runner image (or rebuild your patched image) and re-deploy periodically. Freezing a runner forever is not an option.
 
 For more information, see [How it works](/how-it-works).
 
@@ -353,12 +353,12 @@ If you've set up your self-hosted runners correctly, they will automatically use
 
 GHES is supported on a best-effort basis. The cache server implements the **v2** cache protocol only, and GHES hard-codes a few values differently from github.com, so a GHES deployment needs the following on top of the standard setup:
 
-1. **The v2 cache service must be enabled on your instance.** The runner only talks to `ACTIONS_RESULTS_URL` (and therefore the cache server) when GitHub sets `ACTIONS_CACHE_SERVICE_V2=true` on it. If your GHES version does not enable v2, the runner falls back to the legacy v1 protocol, which the cache server does not implement — caching will not work. You can confirm v2 is active by checking for `ACTIONS_CACHE_SERVICE_V2` in the runner's environment.
+1. **The v2 cache service must be enabled on your instance.** The runner only talks to `ACTIONS_RESULTS_URL` (and therefore the cache server) when GitHub sets `ACTIONS_CACHE_SERVICE_V2=true` on it. If your GHES version does not enable v2, the runner falls back to the legacy v1 protocol, which the cache server does not implement, so caching will not work. You can confirm v2 is active by checking for `ACTIONS_CACHE_SERVICE_V2` in the runner's environment.
 
    ::: warning
    `ACTIONS_CACHE_URL` is the legacy v1 endpoint and is **not** used by the cache server. Setting it has no effect.
    :::
 
-2. **Point token validation at your instance.** GHES issues runner tokens from your own host, so set [`ACTIONS_TOKEN_ISSUER`](#actions-token-issuer) to your instance's issuer — the exact `iss` claim of a runner's OIDC token (decode one to confirm the value). The signing keys are then discovered from that issuer; if your instance serves neither a discovery document nor `{issuer}/.well-known/jwks`, point [`ACTIONS_TOKEN_JWKS_URL`](#actions-token-jwks-url) at the right endpoint. Without a matching issuer, every request is rejected with `401 Invalid token`.
+2. **Point token validation at your instance.** GHES issues runner tokens from your own host, so set [`ACTIONS_TOKEN_ISSUER`](#actions-token-issuer) to your instance's issuer: the exact `iss` claim of a runner's OIDC token (decode one to confirm the value). The signing keys are then discovered from that issuer; if your instance serves neither a discovery document nor `{issuer}/.well-known/jwks`, point [`ACTIONS_TOKEN_JWKS_URL`](#actions-token-jwks-url) at the right endpoint. Without a matching issuer, every request is rejected with `401 Invalid token`.
 
 3. **Point Results passthrough at your instance.** Set [`DEFAULT_ACTIONS_RESULTS_URL`](#default-actions-results-url) to your instance's Results host (e.g. `https://results-receiver.actions.<your-ghes-host>`). Otherwise artifact uploads/downloads and other passthrough requests are forwarded to github.com and fail.
