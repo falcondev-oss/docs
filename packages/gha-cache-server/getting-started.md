@@ -77,9 +77,28 @@ Then install the chart with your custom values:
 helm install <release-name> oci://ghcr.io/falcondev-oss/charts/github-actions-cache-server -f values.yaml
 ```
 
+#### Graceful shutdown
+
+On `SIGTERM` the server stops accepting connections, finishes in-flight requests and running merges, then exits. Ingress controllers learn about a removed pod asynchronously, so add a `preStop` sleep to keep serving until they do. The image has no shell, so use the native sleep handler (Kubernetes 1.30+) and set a grace period longer than the sleep:
+
+```yaml [values.yaml]
+lifecycle:
+  preStop:
+    sleep:
+      seconds: 30
+
+terminationGracePeriodSeconds: 60
+```
+
 ### Environment Variables
 
+Every variable is also a command-line flag of the same name in kebab case, e.g. `API_BASE_URL` is `--api-base-url`. A flag overrides its variable. Run the binary with `--help` to list them all. An empty variable counts as unset.
+
+The server refuses to start on invalid configuration. A missing required value or a value that does not parse exits with code `2`, a conflicting combination of variables with code `1`.
+
 #### `API_BASE_URL`
+
+- Required
 
 - Example: `http://localhost:3000`
 
@@ -114,6 +133,15 @@ If set to `true`, will send a signed URL to the runner. The runner can then down
 The actions runner needs to be able to reach the storage provider directly to use direct downloads.
 
 :::
+
+Direct downloads require token validation: the server refuses to start with both `ENABLE_DIRECT_DOWNLOADS=true` and [`SKIP_TOKEN_VALIDATION=true`](#skip-token-validation), unless [`UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`](#unsafe-allow-direct-downloads-without-token-validation) is set. The filesystem storage driver has no direct downloads.
+
+#### `DIRECT_DOWNLOAD_URL_TTL_SECONDS`
+
+- Default: `600`
+- Range: `1` to `3600`
+
+How long a signed direct-download URL stays valid. A shorter lifetime limits the replay of a leaked URL. Clients that fetch the URL some time after receiving it, such as BuildKit, need a longer one.
 
 #### `EAGER_MERGE`
 
@@ -163,7 +191,14 @@ Change this if your runner tokens are not issued by `https://token.actions.githu
 - Optional
 - Default: discovered from [`ACTIONS_TOKEN_ISSUER`](#actions-token-issuer)
 
-Explicit JWKS endpoint, skipping OIDC discovery. You should not need this: the URL is normally discovered from the issuer, and if discovery is unavailable the server falls back to `{issuer}/.well-known/jwks`. Set it only if your deployment serves its keys somewhere neither of those finds — a warning naming the fallback URL is logged when discovery fails.
+Explicit JWKS endpoint, skipping OIDC discovery. You should not need this: the URL is normally discovered from the issuer, and if discovery is unavailable the server falls back to `{issuer}/.well-known/jwks`. Set it only if your deployment serves its keys somewhere neither of those finds. A warning naming the fallback URL is logged when discovery fails.
+
+#### `ACTIONS_TOKEN_AUDIENCE`
+
+- Optional
+- Example: `https://github.com/my-org`
+
+Comma-separated list of accepted `aud` claims. When set, a runner token must carry one of them. Unset skips the audience check. A value that lists no audience (e.g. `,`) fails startup.
 
 #### `CACHE_CLEANUP_OLDER_THAN_DAYS`
 
@@ -190,6 +225,25 @@ Eviction runs _after_ an upload finalizes, so the total may briefly exceed the b
 
 Maximum percentage of the storage volume's total capacity (including data outside the cache directory) that may be used before capacity-based eviction starts reclaiming space. Ignored when `CACHE_MAX_SIZE_BYTES` is set.
 
+#### `ORPHANED_STORAGE_GRACE_PERIOD_HOURS`
+
+- Default: `24`
+
+How long a storage folder that no database record references must stay untouched before cleanup deletes it. At least `1`.
+
+#### `DISABLE_CLEANUP_JOBS`
+
+- Default: `false`
+
+Disables all cleanup jobs. Each job runs once at startup, then once per period:
+
+| Period     | Job                                                                             |
+| ---------- | ------------------------------------------------------------------------------- |
+| 5 minutes  | Delete uploads without activity for over a minute                               |
+| 10 minutes | Delete parts of merged entries, and storage locations without an entry          |
+| 1 hour     | Reset stalled merges and expired leases                                         |
+| 24 hours   | Delete entries older than `CACHE_CLEANUP_OLDER_THAN_DAYS`, and orphaned storage |
+
 #### `PORT`
 
 - Default: `3000`
@@ -206,7 +260,19 @@ The interface the server should listen on.
 
 - Default: `false`
 
-Skip verification of the GitHub token used for computing the cache scope. This is useful for testing and development purposes, but should not be used in production.
+Skip verification of the GitHub token used for computing the cache scope. This is useful for testing and development purposes, but should not be used in production. Cannot be combined with [`ENABLE_DIRECT_DOWNLOADS`](#enable-direct-downloads).
+
+#### `UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`
+
+- Default: `false`
+
+Allows `ENABLE_DIRECT_DOWNLOADS=true` together with `SKIP_TOKEN_VALIDATION=true`. Anyone who can reach the server then gets signed storage URLs for any repository's cache. For local testing only.
+
+#### `DEBUG`
+
+- Optional
+
+Any value enables debug logging.
 
 #### `MANAGEMENT_API_KEY`
 

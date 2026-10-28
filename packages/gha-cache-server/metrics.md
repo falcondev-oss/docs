@@ -53,7 +53,7 @@ sum(cache_storage_bytes) / <CACHE_MAX_SIZE_BYTES>
 ```
 
 ::: info
-`cache_storage_bytes` reflects payload sizes recorded at upload time. Entries created before capacity tracking was enabled count as `0` until reconciled on the next server startup.
+`cache_storage_bytes` reflects payload sizes recorded at upload time.
 :::
 
 ## Scaling
