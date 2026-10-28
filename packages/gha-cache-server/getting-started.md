@@ -181,7 +181,6 @@ Explicit JWKS endpoint, skipping OIDC discovery. You should not need this: the U
 #### `ACTIONS_TOKEN_AUDIENCE`
 
 - Optional
-- Example: `https://github.com/my-org`
 
 Comma-separated `aud` values. When set, runner tokens must carry one of them. A value that lists no audience (only commas) fails startup. Unset skips the check.
 
