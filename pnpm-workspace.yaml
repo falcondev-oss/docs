@@ -1,12 +1,15 @@
+publicHoistPattern:
+  - eslint-plugin-*
+  - '@prettier/plugin-*'
+
 packages:
   - packages/*
+
+overrides:
+  brace-expansion@<1.1.21: ^1.1.21
 
 allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
   workerd: true
-
-publicHoistPattern:
-  - eslint-plugin-*
-  - '@prettier/plugin-*'
