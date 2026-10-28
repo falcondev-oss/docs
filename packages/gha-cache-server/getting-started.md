@@ -134,12 +134,13 @@ The actions runner needs to be able to reach the storage provider directly to us
 
 :::
 
-Direct downloads require token validation: the server refuses to start with both `ENABLE_DIRECT_DOWNLOADS=true` and [`SKIP_TOKEN_VALIDATION=true`](#skip-token-validation), unless [`UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`](#unsafe-allow-direct-downloads-without-token-validation) is set. The filesystem storage driver has no direct downloads.
+A signed URL is a storage credential, so the server refuses to start with both `ENABLE_DIRECT_DOWNLOADS=true` and [`SKIP_TOKEN_VALIDATION=true`](#skip-token-validation), unless [`UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`](#unsafe-allow-direct-downloads-without-token-validation) is set. The filesystem storage driver has no direct downloads.
 
 #### `DIRECT_DOWNLOAD_URL_TTL_SECONDS`
 
 - Default: `600`
 - Range: `1` to `3600`
+- Helm: `config.directDownloadUrlTtlSeconds`
 
 How long a signed direct-download URL stays valid. A shorter lifetime limits the replay of a leaked URL. Clients that fetch the URL some time after receiving it, such as BuildKit, need a longer one.
 
@@ -260,7 +261,7 @@ The interface the server should listen on.
 
 - Default: `false`
 
-Skip verification of the GitHub token used for computing the cache scope. This is useful for testing and development purposes, but should not be used in production. Cannot be combined with [`ENABLE_DIRECT_DOWNLOADS`](#enable-direct-downloads).
+Skip verification of the GitHub token used for computing the cache scope. This is useful for testing and development purposes, but should not be used in production. Cannot be combined with [`ENABLE_DIRECT_DOWNLOADS`](#enable-direct-downloads) unless [`UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`](#unsafe-allow-direct-downloads-without-token-validation) is set.
 
 #### `UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`
 
