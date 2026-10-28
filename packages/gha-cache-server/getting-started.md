@@ -115,6 +115,19 @@ The actions runner needs to be able to reach the storage provider directly to us
 
 :::
 
+::: danger
+
+The server refuses to start with both `ENABLE_DIRECT_DOWNLOADS=true` and [`SKIP_TOKEN_VALIDATION=true`](#skip-token-validation), since a signed URL is a storage credential and unverified tokens could request one for any repository's cache. Setups that ran both stop at startup after upgrading. See [`UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`](#unsafe-allow-direct-downloads-without-token-validation).
+
+:::
+
+#### `DIRECT_DOWNLOAD_URL_TTL_SECONDS`
+
+- Default: `600`
+- Helm: `config.directDownloadUrlTtlSeconds`
+
+How long a signed direct-download URL stays valid, from `1` to `3600` seconds. A lower value limits replay of a leaked URL; clients that fetch a URL late, such as BuildKit's `type=gha` cache, need a higher one.
+
 #### `EAGER_MERGE`
 
 - Default: `false`
@@ -165,6 +178,13 @@ Change this if your runner tokens are not issued by `https://token.actions.githu
 
 Explicit JWKS endpoint, skipping OIDC discovery. You should not need this: the URL is normally discovered from the issuer, and if discovery is unavailable the server falls back to `{issuer}/.well-known/jwks`. Set it only if your deployment serves its keys somewhere neither of those finds — a warning naming the fallback URL is logged when discovery fails.
 
+#### `ACTIONS_TOKEN_AUDIENCE`
+
+- Optional
+- Example: `https://github.com/my-org`
+
+Comma-separated `aud` values. When set, runner tokens must carry one of them. A value that lists no audience (only commas) fails startup. Unset skips the check.
+
 #### `CACHE_CLEANUP_OLDER_THAN_DAYS`
 
 - Default: `90`
@@ -207,6 +227,14 @@ The interface the server should listen on.
 - Default: `false`
 
 Skip verification of the GitHub token used for computing the cache scope. This is useful for testing and development purposes, but should not be used in production.
+
+Cannot be combined with [`ENABLE_DIRECT_DOWNLOADS`](#enable-direct-downloads) unless [`UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`](#unsafe-allow-direct-downloads-without-token-validation) is set; the server refuses to start otherwise.
+
+#### `UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`
+
+- Default: `false`
+
+Allows `ENABLE_DIRECT_DOWNLOADS=true` together with `SKIP_TOKEN_VALIDATION=true`. Anyone who can reach the server can then get a signed URL for any repository's cache. For local testing only.
 
 #### `MANAGEMENT_API_KEY`
 
