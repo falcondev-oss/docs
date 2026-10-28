@@ -77,9 +77,28 @@ Then install the chart with your custom values:
 helm install <release-name> oci://ghcr.io/falcondev-oss/charts/github-actions-cache-server -f values.yaml
 ```
 
+#### Graceful shutdown
+
+On `SIGTERM` the server stops accepting connections, finishes in-flight requests and running merges, then exits. Ingress controllers learn about a removed pod asynchronously, so add a `preStop` sleep to keep serving until they do. The image has no shell, so use the native sleep handler (Kubernetes 1.30+) and set a grace period longer than the sleep:
+
+```yaml [values.yaml]
+lifecycle:
+  preStop:
+    sleep:
+      seconds: 30
+
+terminationGracePeriodSeconds: 60
+```
+
 ### Environment Variables
 
+Every variable is also a command-line flag of the same name in kebab case, e.g. `API_BASE_URL` is `--api-base-url`. A flag overrides its variable. Run the binary with `--help` to list them all. An empty variable counts as unset.
+
+The server refuses to start on invalid configuration. A missing required value or a value that does not parse exits with code `2`, a conflicting combination of variables with code `1`.
+
 #### `API_BASE_URL`
+
+- Required
 
 - Example: `http://localhost:3000`
 
@@ -115,18 +134,15 @@ The actions runner needs to be able to reach the storage provider directly to us
 
 :::
 
-::: danger
-
-The server refuses to start with both `ENABLE_DIRECT_DOWNLOADS=true` and [`SKIP_TOKEN_VALIDATION=true`](#skip-token-validation), since a signed URL is a storage credential and unverified tokens could request one for any repository's cache. Setups that ran both stop at startup after upgrading. See [`UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`](#unsafe-allow-direct-downloads-without-token-validation).
-
-:::
+A signed URL is a storage credential, so the server refuses to start with both `ENABLE_DIRECT_DOWNLOADS=true` and [`SKIP_TOKEN_VALIDATION=true`](#skip-token-validation), unless [`UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`](#unsafe-allow-direct-downloads-without-token-validation) is set. The filesystem storage driver has no direct downloads.
 
 #### `DIRECT_DOWNLOAD_URL_TTL_SECONDS`
 
 - Default: `600`
+- Range: `1` to `3600`
 - Helm: `config.directDownloadUrlTtlSeconds`
 
-How long a signed direct-download URL stays valid, from `1` to `3600` seconds. A lower value limits replay of a leaked URL; clients that fetch a URL late, such as BuildKit's `type=gha` cache, need a higher one.
+How long a signed direct-download URL stays valid. A shorter lifetime limits the replay of a leaked URL. Clients that fetch the URL some time after receiving it, such as BuildKit, need a longer one.
 
 #### `EAGER_MERGE`
 
@@ -169,20 +185,21 @@ The OIDC issuer whose signature the cache server verifies on runner tokens. It m
 Change this if your runner tokens are not issued by `https://token.actions.githubusercontent.com`:
 
 - **GitHub Enterprise Server**, where tokens are issued by your own instance (see [GitHub Enterprise Server](#github-enterprise-server-ghes)).
-- **GitHub Enterprise Cloud with a [customized issuer](https://docs.github.com/en/enterprise-cloud@latest/actions/reference/security/oidc#customizing-the-issuer-value-for-an-enterprise)**, where the issuer becomes `https://token.actions.githubusercontent.com/<enterpriseSlug>`. Nothing else is needed — the JWKS stays at the default host, and discovery finds it there.
+- **GitHub Enterprise Cloud with a [customized issuer](https://docs.github.com/en/enterprise-cloud@latest/actions/reference/security/oidc#customizing-the-issuer-value-for-an-enterprise)**, where the issuer becomes `https://token.actions.githubusercontent.com/<enterpriseSlug>`. Nothing else is needed: the JWKS stays at the default host, and discovery finds it there.
 
 #### `ACTIONS_TOKEN_JWKS_URL`
 
 - Optional
 - Default: discovered from [`ACTIONS_TOKEN_ISSUER`](#actions-token-issuer)
 
-Explicit JWKS endpoint, skipping OIDC discovery. You should not need this: the URL is normally discovered from the issuer, and if discovery is unavailable the server falls back to `{issuer}/.well-known/jwks`. Set it only if your deployment serves its keys somewhere neither of those finds — a warning naming the fallback URL is logged when discovery fails.
+Explicit JWKS endpoint, skipping OIDC discovery. You should not need this: the URL is normally discovered from the issuer, and if discovery is unavailable the server falls back to `{issuer}/.well-known/jwks`. Set it only if your deployment serves its keys somewhere neither of those finds. A warning naming the fallback URL is logged when discovery fails.
 
 #### `ACTIONS_TOKEN_AUDIENCE`
 
 - Optional
+- Example: `https://github.com/my-org`
 
-Comma-separated `aud` values. When set, runner tokens must carry one of them. A value that lists no audience (only commas) fails startup. Unset skips the check.
+Comma-separated list of accepted `aud` claims. When set, a runner token must carry one of them. Unset skips the audience check. A value that lists no audience (e.g. `,`) fails startup.
 
 #### `CACHE_CLEANUP_OLDER_THAN_DAYS`
 
@@ -209,6 +226,25 @@ Eviction runs _after_ an upload finalizes, so the total may briefly exceed the b
 
 Maximum percentage of the storage volume's total capacity (including data outside the cache directory) that may be used before capacity-based eviction starts reclaiming space. Ignored when `CACHE_MAX_SIZE_BYTES` is set.
 
+#### `ORPHANED_STORAGE_GRACE_PERIOD_HOURS`
+
+- Default: `24`
+
+How long a storage folder that no database record references must stay untouched before cleanup deletes it. At least `1`.
+
+#### `DISABLE_CLEANUP_JOBS`
+
+- Default: `false`
+
+Disables all cleanup jobs. Each job runs once at startup, then once per period:
+
+| Period     | Job                                                                             |
+| ---------- | ------------------------------------------------------------------------------- |
+| 5 minutes  | Delete uploads without activity for over a minute                               |
+| 10 minutes | Delete parts of merged entries, and storage locations without an entry          |
+| 1 hour     | Reset stalled merges and expired leases                                         |
+| 24 hours   | Delete entries older than `CACHE_CLEANUP_OLDER_THAN_DAYS`, and orphaned storage |
+
 #### `PORT`
 
 - Default: `3000`
@@ -225,15 +261,19 @@ The interface the server should listen on.
 
 - Default: `false`
 
-Skip verification of the GitHub token used for computing the cache scope. This is useful for testing and development purposes, but should not be used in production.
-
-Cannot be combined with [`ENABLE_DIRECT_DOWNLOADS`](#enable-direct-downloads) unless [`UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`](#unsafe-allow-direct-downloads-without-token-validation) is set; the server refuses to start otherwise.
+Skip verification of the GitHub token used for computing the cache scope. This is useful for testing and development purposes, but should not be used in production. Cannot be combined with [`ENABLE_DIRECT_DOWNLOADS`](#enable-direct-downloads) unless [`UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`](#unsafe-allow-direct-downloads-without-token-validation) is set.
 
 #### `UNSAFE_ALLOW_DIRECT_DOWNLOADS_WITHOUT_TOKEN_VALIDATION`
 
 - Default: `false`
 
-Allows `ENABLE_DIRECT_DOWNLOADS=true` together with `SKIP_TOKEN_VALIDATION=true`. Anyone who can reach the server can then get a signed URL for any repository's cache. For local testing only.
+Allows `ENABLE_DIRECT_DOWNLOADS=true` together with `SKIP_TOKEN_VALIDATION=true`. Anyone who can reach the server then gets signed storage URLs for any repository's cache. For local testing only.
+
+#### `DEBUG`
+
+- Optional
+
+Any value enables debug logging.
 
 #### `MANAGEMENT_API_KEY`
 
@@ -261,7 +301,7 @@ We provide a forked runner image that has the source code modified to allow over
 - Image: `ghcr.io/falcondev-oss/actions-runner:latest`
 
 ::: tip Auto-update is handled for you
-Recent forked-runner images skip runner self-update while `CUSTOM_ACTIONS_RESULTS_URL` is set, so a server-triggered update can't silently overwrite the patched binary and revert you to GitHub's central cache. You still need to update manually — see [Keep the runner up to date](#keep-the-runner-up-to-date) below.
+Recent forked-runner images skip runner self-update while `CUSTOM_ACTIONS_RESULTS_URL` is set, so a server-triggered update can't silently overwrite the patched binary and revert you to GitHub's central cache. You still need to update manually, see [Keep the runner up to date](#keep-the-runner-up-to-date) below.
 :::
 
 ### Binary Patch
@@ -291,12 +331,12 @@ gsed -i 's/\x41\x00\x43\x00\x54\x00\x49\x00\x4F\x00\x4E\x00\x53\x00\x5F\x00\x52\
 This patch prevents the runner from overwriting your custom `ACTIONS_RESULTS_URL`.
 
 ::: warning Disable runner auto-update
-By default the runner self-updates when GitHub pushes a new version, which restores the stock binary and **silently reverts you to GitHub's central cache** — no error, caching just stops. A binary patch does not survive that. Register the runner with `config.sh --disableupdate` (or set `disableUpdate: true` with [ARC](https://github.com/actions/actions-runner-controller)) to stop auto-updates; it works on both github.com and GitHub Enterprise Server. The [forked runner](#forked-runner-recommended) skips self-update automatically while `CUSTOM_ACTIONS_RESULTS_URL` is set.
+By default the runner self-updates when GitHub pushes a new version, which restores the stock binary and **silently reverts you to GitHub's central cache**. There is no error, caching just stops. A binary patch does not survive that. Register the runner with `config.sh --disableupdate` (or set `disableUpdate: true` with [ARC](https://github.com/actions/actions-runner-controller)) to stop auto-updates; it works on both github.com and GitHub Enterprise Server. The [forked runner](#forked-runner-recommended) skips self-update automatically while `CUSTOM_ACTIONS_RESULTS_URL` is set.
 :::
 
 ### Keep the runner up to date
 
-Whichever approach you use, GitHub still requires self-hosted runners to stay current. If a runner falls more than ~30 days behind the latest release — or below GitHub's enforced minimum version — GitHub **stops queuing jobs to it**. So you must update on your own schedule: pull the latest forked-runner image (or rebuild your patched image) and re-deploy periodically. Freezing a runner forever is not an option.
+Whichever approach you use, GitHub still requires self-hosted runners to stay current. If a runner falls more than ~30 days behind the latest release, or below GitHub's enforced minimum version, GitHub **stops queuing jobs to it**. So you must update on your own schedule: pull the latest forked-runner image (or rebuild your patched image) and re-deploy periodically. Freezing a runner forever is not an option.
 
 For more information, see [How it works](/how-it-works).
 
@@ -314,12 +354,12 @@ If you've set up your self-hosted runners correctly, they will automatically use
 
 GHES is supported on a best-effort basis. The cache server implements the **v2** cache protocol only, and GHES hard-codes a few values differently from github.com, so a GHES deployment needs the following on top of the standard setup:
 
-1. **The v2 cache service must be enabled on your instance.** The runner only talks to `ACTIONS_RESULTS_URL` (and therefore the cache server) when GitHub sets `ACTIONS_CACHE_SERVICE_V2=true` on it. If your GHES version does not enable v2, the runner falls back to the legacy v1 protocol, which the cache server does not implement — caching will not work. You can confirm v2 is active by checking for `ACTIONS_CACHE_SERVICE_V2` in the runner's environment.
+1. **The v2 cache service must be enabled on your instance.** The runner only talks to `ACTIONS_RESULTS_URL` (and therefore the cache server) when GitHub sets `ACTIONS_CACHE_SERVICE_V2=true` on it. If your GHES version does not enable v2, the runner falls back to the legacy v1 protocol, which the cache server does not implement, so caching will not work. You can confirm v2 is active by checking for `ACTIONS_CACHE_SERVICE_V2` in the runner's environment.
 
    ::: warning
    `ACTIONS_CACHE_URL` is the legacy v1 endpoint and is **not** used by the cache server. Setting it has no effect.
    :::
 
-2. **Point token validation at your instance.** GHES issues runner tokens from your own host, so set [`ACTIONS_TOKEN_ISSUER`](#actions-token-issuer) to your instance's issuer — the exact `iss` claim of a runner's OIDC token (decode one to confirm the value). The signing keys are then discovered from that issuer; if your instance serves neither a discovery document nor `{issuer}/.well-known/jwks`, point [`ACTIONS_TOKEN_JWKS_URL`](#actions-token-jwks-url) at the right endpoint. Without a matching issuer, every request is rejected with `401 Invalid token`.
+2. **Point token validation at your instance.** GHES issues runner tokens from your own host, so set [`ACTIONS_TOKEN_ISSUER`](#actions-token-issuer) to your instance's issuer: the exact `iss` claim of a runner's OIDC token (decode one to confirm the value). The signing keys are then discovered from that issuer; if your instance serves neither a discovery document nor `{issuer}/.well-known/jwks`, point [`ACTIONS_TOKEN_JWKS_URL`](#actions-token-jwks-url) at the right endpoint. Without a matching issuer, every request is rejected with `401 Invalid token`.
 
 3. **Point Results passthrough at your instance.** Set [`DEFAULT_ACTIONS_RESULTS_URL`](#default-actions-results-url) to your instance's Results host (e.g. `https://results-receiver.actions.<your-ghes-host>`). Otherwise artifact uploads/downloads and other passthrough requests are forwarded to github.com and fail.

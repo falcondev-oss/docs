@@ -34,7 +34,7 @@ scrape_configs:
 | `cache_storage_bytes`                        | gauge   | Total size of finalized cache payloads currently in storage.                                                                          |
 | `process_*`                                  | gauge   | Default process metrics: CPU, resident and virtual memory, open file descriptors, threads, and `process_start_time_seconds` (uptime). |
 
-Rates are derived in [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) — e.g. requests per minute and hit ratio:
+Rates are derived in [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/), e.g. requests per minute and hit ratio:
 
 ```promql
 # cache lookups per minute
@@ -53,7 +53,7 @@ sum(cache_storage_bytes) / <CACHE_MAX_SIZE_BYTES>
 ```
 
 ::: info
-`cache_storage_bytes` reflects payload sizes recorded at upload time. Entries created before capacity tracking was enabled count as `0` until reconciled on the next server startup.
+`cache_storage_bytes` reflects payload sizes recorded at upload time.
 :::
 
 ## Scaling
