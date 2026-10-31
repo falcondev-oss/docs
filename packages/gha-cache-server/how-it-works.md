@@ -1,5 +1,4 @@
 ---
-title: How it works
 description: "How the GitHub Actions Cache Server stands in for GitHub's cache backend on self-hosted runners, so actions/cache, setup-* caches and BuildKit type=gha need no workflow changes."
 outline: [2, 4]
 ---

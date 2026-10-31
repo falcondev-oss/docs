@@ -1,6 +1,5 @@
 ---
-title: Google Cloud Storage
-description: 'Stores GitHub Actions caches in a Google Cloud Storage bucket.'
+description: 'Store self-hosted GitHub Actions caches in a Google Cloud Storage bucket, with optional direct downloads from the bucket.'
 ---
 
 # Google Cloud Storage

@@ -1,5 +1,4 @@
 ---
-title: Getting Started
 description: 'Deploy the self-hosted GitHub Actions cache server with Docker Compose or Kubernetes. Point your self-hosted runners at it and actions/cache works unchanged.'
 outline: [2, 4]
 ---

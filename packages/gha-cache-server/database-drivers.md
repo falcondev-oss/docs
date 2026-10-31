@@ -1,5 +1,4 @@
 ---
-title: Database Drivers
 description: 'Database backends for the self-hosted GitHub Actions cache server: SQLite, PostgreSQL and MySQL.'
 ---
 

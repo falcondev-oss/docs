@@ -1,6 +1,5 @@
 ---
-title: File System
-description: 'Stores GitHub Actions caches on the local disk of the cache server. This is the default storage driver.'
+description: 'Store self-hosted GitHub Actions caches on local disk. The default storage driver, no external service needed.'
 ---
 
 # File System

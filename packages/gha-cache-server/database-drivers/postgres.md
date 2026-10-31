@@ -1,6 +1,5 @@
 ---
-title: PostgreSQL
-description: 'Use PostgreSQL as the cache metadata database of the self-hosted GitHub Actions cache server.'
+description: 'Use PostgreSQL as the database of the self-hosted GitHub Actions cache server. Recommended for production.'
 ---
 
 # PostgreSQL

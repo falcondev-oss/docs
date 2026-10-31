@@ -1,5 +1,4 @@
 ---
-title: Metrics
 description: 'Prometheus metrics for the self-hosted GitHub Actions cache server: cache hits and misses, uploads and storage size.'
 outline: [2, 4]
 ---

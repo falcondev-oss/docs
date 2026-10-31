@@ -1,6 +1,5 @@
 ---
-title: SQLite
-description: 'Use SQLite as the cache metadata database of the self-hosted GitHub Actions cache server. The default, with no extra service to run.'
+description: 'Use SQLite as the database of the self-hosted GitHub Actions cache server. The default, no extra service needed.'
 ---
 
 # SQLite
