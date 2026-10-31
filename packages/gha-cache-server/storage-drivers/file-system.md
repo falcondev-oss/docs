@@ -1,13 +1,12 @@
 ---
-title: File System
-description: The File System storage driver stores the cache in the local file system of the cache server. This is the default storage driver and is used when no other storage driver is specified.
+description: 'Store self-hosted GitHub Actions caches on local disk. The default storage driver, no external service needed.'
 ---
 
-# {{ $frontmatter.title }}
+# File System
 
 Driver: `filesystem`
 
-{{ $frontmatter.description }}
+The File System storage driver stores the cache in the local file system of the cache server. This is the default storage driver and is used when no other storage driver is specified.
 
 ## Configuration
 

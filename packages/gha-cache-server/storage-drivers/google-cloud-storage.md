@@ -1,13 +1,12 @@
 ---
-title: Google Cloud Storage
-description: This storage driver stores the cache in a GCS bucket.
+description: 'Store self-hosted GitHub Actions caches in a Google Cloud Storage bucket, with optional direct downloads from the bucket.'
 ---
 
-# {{ $frontmatter.title }}
+# Google Cloud Storage
 
 Driver: `gcs`
 
-{{ $frontmatter.description }}
+This storage driver stores the cache in a GCS bucket.
 
 ## Configuration
 

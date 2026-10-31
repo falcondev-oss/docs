@@ -1,12 +1,11 @@
 ---
-title: Metrics
-description: Scrape Prometheus metrics to monitor cache performance.
+description: 'Prometheus metrics for the self-hosted GitHub Actions cache server: cache hits and misses, uploads and storage size.'
 outline: [2, 4]
 ---
 
-# {{ $frontmatter.title }}
+# Metrics
 
-{{ $frontmatter.description }}
+Scrape Prometheus metrics to monitor cache performance.
 
 The server exposes [Prometheus](https://prometheus.io/) metrics at `GET /metrics` in the standard text exposition format. The endpoint is always enabled and unauthenticated.
 

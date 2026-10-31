@@ -1,14 +1,13 @@
 ---
-title: Storage Drivers
-description: A list of storage drivers available for the GitHub Actions Cache Server
+description: 'Storage backends for the self-hosted GitHub Actions cache server: filesystem, S3 (RustFS, MinIO, R2), Google Cloud Storage and Azure Blob Storage.'
 ---
 
-# {{ $frontmatter.title }}
+# Storage Drivers
 
-{{ $frontmatter.description }}
+A list of storage drivers available for the GitHub Actions Cache Server
 
 - [File System](/storage-drivers/file-system)
-- [S3 / RustFS](/storage-drivers/s3)
+- [S3 / RustFS / MinIO / R2](/storage-drivers/s3)
 - [GCS](/storage-drivers/google-cloud-storage)
 - [Azure Blob Storage](/storage-drivers/azure-blob-storage)
 

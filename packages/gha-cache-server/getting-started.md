@@ -1,12 +1,11 @@
 ---
-title: Getting Started
-description: The cache server is available as a Docker image and can be deployed via Docker Compose or Kubernetes.
+description: 'Deploy the self-hosted GitHub Actions cache server with Docker Compose or Kubernetes. Point your self-hosted runners at it and actions/cache works unchanged.'
 outline: [2, 4]
 ---
 
-# {{ $frontmatter.title }}
+# Getting Started
 
-{{ $frontmatter.description }}
+The cache server is available as a Docker image and can be deployed via Docker Compose or Kubernetes.
 
 ## 1. Deployment
 

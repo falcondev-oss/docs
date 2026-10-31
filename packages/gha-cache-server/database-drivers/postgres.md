@@ -1,8 +1,8 @@
 ---
-title: PostgreSQL
+description: 'Use PostgreSQL as the database of the self-hosted GitHub Actions cache server. Recommended for production.'
 ---
 
-# {{ $frontmatter.title }}
+# PostgreSQL
 
 Driver: `postgres`
 

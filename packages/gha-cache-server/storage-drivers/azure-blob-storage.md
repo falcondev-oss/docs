@@ -1,13 +1,12 @@
 ---
-title: Azure Blob Storage
-description: This storage driver stores the cache in an Azure Blob Storage container.
+description: 'Store self-hosted GitHub Actions caches in Azure Blob Storage, authenticated by connection string or Entra ID.'
 ---
 
-# {{ $frontmatter.title }}
+# Azure Blob Storage
 
 Driver: `azblob`
 
-{{ $frontmatter.description }}
+This storage driver stores the cache in an Azure Blob Storage container.
 
 ## Configuration
 

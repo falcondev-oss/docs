@@ -1,8 +1,8 @@
 ---
-title: SQLite
+description: 'Use SQLite as the database of the self-hosted GitHub Actions cache server. The default, no extra service needed.'
 ---
 
-# {{ $frontmatter.title }}
+# SQLite
 
 Driver: `sqlite`
 
