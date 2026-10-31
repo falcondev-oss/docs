@@ -24,10 +24,12 @@
     "prettier": "^3.9.10",
     "remeda": "^2.54.1",
     "vitepress-plugin-group-icons": "^1.8.1",
+    "vitepress-plugin-llms": "^1.14.0",
     "vue": "^3.5.44"
   },
   "devDependencies": {
     "@falcondev-oss/configs": "^6.0.6",
+    "@types/node": "^24.19.2",
     "eslint-plugin-unicorn": "^69.0.0",
     "turbo": "latest",
     "typescript": "^6.0.3",

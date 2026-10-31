@@ -1,13 +1,14 @@
 import { defineConfigWithDefaults } from '../../../default-config'
 
 export default defineConfigWithDefaults({
-  title: 'GHA Cache Server',
+  title: 'GitHub Actions Cache Server',
   description:
-    "Self-hosted GitHub Actions cache server implementation. Compatible with official 'actions/cache' action",
+    'Self-hosted GitHub Actions cache server written in Rust. Drop-in replacement for the GitHub cache backend: actions/cache, setup-* caches and BuildKit type=gha work unchanged on self-hosted runners.',
   port: 5178,
   repo: 'falcondev-oss/github-actions-cache-server',
   url: 'https://gha-cache-server.falcondev.io',
   config: {
+    titleTemplate: ':title | Self-Hosted GitHub Actions Cache Server',
     themeConfig: {
       sidebar: [
         {
@@ -39,7 +40,7 @@ export default defineConfigWithDefaults({
           text: 'Storage Drivers',
           items: [
             {
-              text: 'S3 / RustFS',
+              text: 'S3 / RustFS / MinIO / R2',
               link: '/storage-drivers/s3',
             },
             {

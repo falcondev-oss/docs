@@ -1,12 +1,12 @@
 ---
 title: How it works
-description: How the cache server integrates with GitHub Actions
+description: "How the GitHub Actions Cache Server stands in for GitHub's cache backend on self-hosted runners, so actions/cache, setup-* caches and BuildKit type=gha need no workflow changes."
 outline: [2, 4]
 ---
 
-# {{ $frontmatter.title }}
+# How it works
 
-{{ $frontmatter.description }}
+How the cache server integrates with GitHub Actions
 
 ## Reverse-Engineered API
 

@@ -1,11 +1,11 @@
 ---
 title: Database Drivers
-description: A list of database drivers available for the GitHub Actions Cache Server
+description: 'Database backends for the self-hosted GitHub Actions cache server: SQLite, PostgreSQL and MySQL.'
 ---
 
-# {{ $frontmatter.title }}
+# Database Drivers
 
-{{ $frontmatter.description }}
+A list of database drivers available for the GitHub Actions Cache Server
 
 - [SQLite](/database-drivers/sqlite)
 - [PostgreSQL](/database-drivers/postgres)

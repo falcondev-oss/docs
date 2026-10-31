@@ -1,8 +1,9 @@
 ---
 title: MySQL
+description: 'Use MySQL as the cache metadata database of the self-hosted GitHub Actions cache server.'
 ---
 
-# {{ $frontmatter.title }}
+# MySQL
 
 Driver: `mysql`
 
