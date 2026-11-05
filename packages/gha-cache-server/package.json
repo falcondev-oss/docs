@@ -1,9 +1,0 @@
-{
-  "name": "gha-cache-server",
-  "type": "module",
-  "scripts": {
-    "build": "vitepress build",
-    "dev": "vitepress dev",
-    "deploy": "wrangler deploy"
-  }
-}
