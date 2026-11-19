@@ -1,0 +1,70 @@
+---
+// PROTOTYPE: dev-only bar to flip between home page variants. Not part of any design.
+type Props = { variants: { key: string; name: string }[] }
+const { variants } = Astro.props
+---
+
+<nav class="switcher" data-variants={JSON.stringify(variants)}>
+  <button type="button" data-step="-1" aria-label="Previous variant">←</button>
+  <span data-label></span>
+  <button type="button" data-step="1" aria-label="Next variant">→</button>
+</nav>
+
+<script>
+  const bar = document.querySelector<HTMLElement>('.switcher')!
+  const variants = JSON.parse(bar.dataset.variants!) as { key: string; name: string }[]
+  const label = bar.querySelector<HTMLElement>('[data-label]')!
+
+  function show(key: string) {
+    const index = Math.max(
+      0,
+      variants.findIndex((v) => v.key === key),
+    )
+    const current = variants[index]!
+    for (const el of document.querySelectorAll<HTMLElement>('[data-variant]')) el.hidden = el.dataset.variant !== current.key
+    label.textContent = `${current.key} (${current.name})`
+    const url = new URL(location.href)
+    url.searchParams.set('variant', current.key)
+    history.replaceState(null, '', url)
+    return index
+  }
+
+  let index = show(new URL(location.href).searchParams.get('variant') ?? 'A')
+  const step = (by: number) => (index = show(variants[(index + by + variants.length) % variants.length]!.key))
+
+  for (const button of bar.querySelectorAll<HTMLButtonElement>('[data-step]'))
+    button.addEventListener('click', () => step(Number(button.dataset.step)))
+  addEventListener('keydown', (event) => {
+    if ((event.target as HTMLElement).closest('input, textarea, [contenteditable]')) return
+    if (event.key === 'ArrowLeft') step(-1)
+    if (event.key === 'ArrowRight') step(1)
+  })
+</script>
+
+<style>
+  .switcher {
+    position: fixed;
+    bottom: 1.25rem;
+    left: 50%;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 0.5rem;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: #fde047;
+    color: #111;
+    font: 600 0.85rem ui-monospace, monospace;
+    box-shadow: 0 6px 24px rgb(0 0 0 / 0.35);
+  }
+  button {
+    all: unset;
+    cursor: pointer;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+  }
+  button:hover {
+    background: rgb(0 0 0 / 0.12);
+  }
+</style>

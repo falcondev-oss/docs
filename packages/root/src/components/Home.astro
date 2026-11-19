@@ -1,0 +1,47 @@
+---
+// PROTOTYPE: three home page variants on one route, switched with `?variant=A|B|C` and the bottom bar.
+// Once one wins, keep it here and move the rest to the `prototype/starlight-home` branch.
+import { fetchStats, projects } from '../projects'
+import PrototypeSwitcher from './prototype/PrototypeSwitcher.astro'
+import VariantIndex from './prototype/VariantIndex.astro'
+import VariantReel from './prototype/VariantReel.astro'
+import VariantShowcase from './prototype/VariantShowcase.astro'
+
+const stats = await fetchStats()
+const totalStars = projects.reduce((sum, p) => sum + (stats.get(p.repo)?.stars ?? 0), 0)
+
+const variants = [
+  { key: 'A', name: 'Showcase', Component: VariantShowcase },
+  { key: 'B', name: 'Index', Component: VariantIndex },
+  { key: 'C', name: 'Reel', Component: VariantReel },
+] as const
+---
+
+<div class="home not-content">
+  {
+    variants.map(({ key, Component }, i) => (
+      <div data-variant={key} hidden={i > 0}>
+        <Component stats={stats} totalStars={totalStars} />
+      </div>
+    ))
+  }
+</div>
+{import.meta.env.DEV && <PrototypeSwitcher variants={variants.map(({ key, name }) => ({ key, name }))} />}
+
+<style>
+  :global(main:has(.home)) {
+    overflow-x: clip;
+  }
+  :global(main:has(.home) .sl-container) {
+    max-width: none;
+  }
+  :global(main:has(.home) .content-panel) {
+    padding-top: 0;
+    border: 0;
+  }
+  .home {
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-bottom: 5rem;
+  }
+</style>

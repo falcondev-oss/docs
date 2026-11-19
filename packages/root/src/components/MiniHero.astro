@@ -1,0 +1,494 @@
+---
+/**
+ * A small copy of a project's home page hero, in the style of that page.
+ * Sizes itself with container queries, so every variant can drop it into any slot.
+ */
+import type { Project } from '../projects'
+
+type Props = { project: Project; stars: number | undefined }
+const { project: p, stars } = Astro.props
+
+const starLabel = stars === undefined ? undefined : `★ ${stars.toLocaleString('en-US')}`
+
+const langHeadlines = [
+  ['Every text in your app,', 'translated and typed.'],
+  ['Jeder Text deiner App,', 'übersetzt und typisiert.'],
+  ['Cada texto de tu app,', 'traducido y con tipos.'],
+  ['Chaque texte de ton app,', 'traduit et typé.'],
+]
+---
+
+<a
+  class:list={['mini', `skin-${p.skin}`]}
+  href={p.url}
+  style={p.skin === 'glow' || p.skin === 'dots'
+    ? `--hue: ${p.hue}`
+    : p.skin === 'vitepress'
+      ? `--brand: ${p.brand}`
+      : undefined}
+  data-repo={p.repo}
+>
+  {
+    (p.skin === 'glow' || p.skin === 'dots') && (
+      <div class="sl">
+        <div class="sl-nav">
+          {p.logo && <img src={p.logo} alt="" />}
+          <span>{p.name}</span>
+        </div>
+        <h3 data-rotate={p.skin === 'dots' ? JSON.stringify(langHeadlines) : undefined}>
+          <span>{p.headline[0]}</span>
+          <br />
+          <em>{p.headline[1]}</em>
+        </h3>
+        <p class="lede">{p.lede}</p>
+        <div class="sl-actions">
+          <span class="sl-btn primary">Get started</span>
+          {p.skin === 'dots' ? (
+            <code class="sl-cmd">$ {p.command}</code>
+          ) : (
+            <span class="sl-btn">GitHub {starLabel && <small>{starLabel}</small>}</span>
+          )}
+        </div>
+      </div>
+    )
+  }
+  {
+    p.skin === 'vitepress' && (
+      <div class="vp">
+        <div class="vp-nav">
+          {p.logo && <img src={p.logo} alt="" />}
+          <span>{p.name}</span>
+        </div>
+        <div class="vp-hero">
+          <div class="vp-copy">
+            <h3>
+              <span class="vp-name">{p.name}</span>
+              <span class="vp-text">{p.text}</span>
+            </h3>
+            <p class="vp-tagline">{p.tagline}</p>
+            <div class="vp-actions">
+              <span class="vp-btn brand">Get Started</span>
+              <span class="vp-btn alt">GitHub {starLabel && <small>{starLabel}</small>}</span>
+            </div>
+          </div>
+          {p.logo && (
+            <div class="vp-image">
+              <img src={p.logo} alt="" />
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+  {
+    p.skin === 'readme' && (
+      <div class="gh">
+        <div class="gh-path">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z"
+            />
+          </svg>
+          <span>falcondev-oss</span>/<b>{p.repo}</b>
+          <span class="gh-pill">Public</span>
+          {starLabel && <span class="gh-stars">{starLabel}</span>}
+        </div>
+        <div class="gh-readme">
+          <h3>{p.name}</h3>
+          <p>{p.lede}</p>
+          <pre><code>{p.command}</code></pre>
+        </div>
+      </div>
+    )
+  }
+</a>
+
+<script>
+  // lang's real home page greets in another language: rotate the headline the same way
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+  for (const h of document.querySelectorAll<HTMLElement>('[data-rotate]')) {
+    if (reduce) continue
+    const lines = JSON.parse(h.dataset.rotate!) as [string, string][]
+    const [first, second] = [h.querySelector('span')!, h.querySelector('em')!]
+    let i = 0
+    setInterval(() => {
+      i = (i + 1) % lines.length
+      h.classList.add('swap')
+      setTimeout(() => {
+        ;[first.textContent, second.textContent] = lines[i]!
+        h.classList.remove('swap')
+      }, 250)
+    }, 3200)
+  }
+</script>
+
+<style>
+  .mini {
+    container-type: inline-size;
+    position: relative;
+    display: block;
+    height: 100%;
+    overflow: hidden;
+    isolation: isolate;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.6rem;
+    color: inherit;
+    text-decoration: none;
+    transition:
+      border-color 0.2s,
+      transform 0.2s;
+  }
+  .mini:hover {
+    border-color: var(--sl-color-gray-4);
+  }
+  .mini img {
+    display: block;
+  }
+  h3 {
+    margin: 0;
+  }
+
+  /* ── Starlight "graphite" sites: gha-cache-server and lang ── */
+  .sl {
+    --a: oklch(64.5% 0.22 var(--hue));
+    --a-high: oklch(83% 0.11 var(--hue));
+    --bg: oklch(15.5% 0.008 var(--hue));
+    --fg: oklch(97% 0.005 var(--hue));
+    --muted: oklch(78% 0.012 var(--hue));
+    --line: oklch(100% 0 0 / 0.1);
+    height: 100%;
+    padding: 0 6cqi 6cqi;
+    display: flex;
+    flex-direction: column;
+    gap: 3.5cqi;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  }
+  :global([data-theme='light']) .sl {
+    --a: oklch(54% 0.22 var(--hue));
+    --a-high: oklch(38% 0.17 var(--hue));
+    --bg: oklch(99.4% 0.003 var(--hue));
+    --fg: oklch(17% 0.008 var(--hue));
+    --muted: oklch(42% 0.012 var(--hue));
+    --line: oklch(0% 0 0 / 0.08);
+  }
+  .skin-glow .sl {
+    background:
+      radial-gradient(70cqi 45cqi at 85% 15%, color-mix(in oklch, var(--a) 22%, transparent), transparent 70%),
+      var(--bg);
+  }
+  .skin-dots .sl {
+    position: relative;
+  }
+  .skin-dots .sl::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(color-mix(in oklch, var(--a) 40%, transparent) 1px, transparent 1.4px) 0 0 / 8px 8px;
+    mask: linear-gradient(100deg, black, transparent 45%, transparent 70%, black);
+  }
+  .skin-dots .sl {
+    background-color: transparent;
+  }
+  .skin-dots {
+    background: var(--sl-color-black);
+  }
+  .sl-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-inline: -6cqi;
+    padding: 0.7rem 6cqi;
+    border-bottom: 1px solid var(--line);
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 3cqi;
+  }
+  .sl-nav img {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  .sl h3 {
+    font-size: clamp(1.35rem, 8.2cqi, 4.5rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.04;
+    color: var(--fg);
+    transition:
+      opacity 0.25s,
+      filter 0.25s;
+  }
+  .sl h3:global(.swap) {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  .sl h3 em {
+    font-style: normal;
+    background: linear-gradient(100deg, var(--a-high), var(--a) 60%);
+    background-clip: text;
+    color: transparent;
+  }
+  .skin-dots .sl h3 em {
+    background: none;
+    color: var(--fg);
+  }
+  .sl .lede {
+    margin: 0;
+    max-width: 34rem;
+    font-size: clamp(0.85rem, 2.4cqi, 1.1rem);
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .sl-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: auto;
+    padding-top: 1rem;
+  }
+  .sl-btn {
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  .sl-btn.primary {
+    background: var(--a);
+    border-color: var(--a);
+    color: white;
+  }
+  .sl-btn small,
+  .vp-btn small {
+    font-family: 'Geist Mono Variable', monospace;
+    opacity: 0.7;
+    margin-left: 0.25rem;
+  }
+  .sl-cmd {
+    padding: 0.5rem 0.8rem;
+    border: 1px dashed var(--line);
+    border-radius: 0.4rem;
+    font: 0.8rem 'Geist Mono Variable', monospace;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  /* ── VitePress default theme sites ── */
+  .vp {
+    --bg: #1b1b1f;
+    --fg: rgba(255, 255, 245, 0.86);
+    --muted: rgba(235, 235, 245, 0.6);
+    --soft: #2e2e32;
+    --divider: #2e2e32;
+    --vp-gray: #8e8e96;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  }
+  :global([data-theme='light']) .vp {
+    --bg: #ffffff;
+    --fg: rgba(60, 60, 67);
+    --muted: rgba(60, 60, 67, 0.78);
+    --soft: #ebebef;
+    --divider: #e2e2e3;
+    --vp-gray: #67676c;
+  }
+  .vp-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 6cqi;
+    border-bottom: 1px solid var(--divider);
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .vp-nav img {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  .vp-hero {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4cqi;
+    padding: 7cqi 6cqi;
+  }
+  .vp-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 3cqi;
+  }
+  .vp h3 {
+    display: flex;
+    flex-direction: column;
+    font-size: clamp(1.25rem, 6.4cqi, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+  }
+  .vp-name {
+    color: var(--brand);
+  }
+  .vp-text {
+    color: var(--fg);
+    text-wrap: balance;
+  }
+  .vp-tagline {
+    margin: 0;
+    max-width: 30rem;
+    font-size: clamp(0.85rem, 2.9cqi, 1.3rem);
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+  .vp-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1cqi;
+  }
+  .vp-btn {
+    padding: 0.35rem 1rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .vp-btn.brand {
+    background: var(--brand);
+    color: #fff;
+  }
+  .vp-btn.alt {
+    background: var(--soft);
+  }
+  .vp-image {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: clamp(4rem, 26cqi, 16rem);
+    aspect-ratio: 1;
+  }
+  .vp-image::before {
+    content: '';
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    background: var(--brand);
+    filter: blur(min(44px, 9cqi));
+    opacity: 0.45;
+  }
+  .vp-image img {
+    position: relative;
+    width: 72%;
+    height: 72%;
+    object-fit: contain;
+  }
+
+  /* ── GitHub README: the home page of projects without a site ── */
+  .gh {
+    --bg: #0d1117;
+    --fg: #f0f6fc;
+    --muted: #9198a1;
+    --line: #3d444d;
+    --code: #151b23;
+    --link: #4493f8;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--fg);
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    font-size: 0.85rem;
+  }
+  :global([data-theme='light']) .gh {
+    --bg: #ffffff;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --line: #d1d9e0;
+    --code: #f6f8fa;
+    --link: #0969da;
+  }
+  .gh-path {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--link);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .gh-path svg {
+    width: 1rem;
+    color: var(--muted);
+    flex: none;
+  }
+  .gh-path b {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .gh-pill {
+    margin-left: 0.25rem;
+    padding: 0 0.45rem;
+    border: 1px solid var(--line);
+    border-radius: 2em;
+    color: var(--muted);
+    font-size: 0.72rem;
+    line-height: 1.5;
+  }
+  .gh-stars {
+    margin-left: auto;
+    color: var(--muted);
+  }
+  .gh-readme {
+    padding: 1rem;
+  }
+  .gh h3 {
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--line);
+    font-size: 1.45rem;
+    font-weight: 600;
+  }
+  .gh p {
+    margin: 0.75rem 0;
+    line-height: 1.5;
+  }
+  .gh pre {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    background: var(--code);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .gh code {
+    font: 0.78rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--fg);
+  }
+
+  /* narrow slots: drop the parts a glance does not need */
+  @container (max-width: 26rem) {
+    .vp-hero {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .vp-image {
+      display: none;
+    }
+    .sl .lede {
+      display: none;
+    }
+  }
+</style>
