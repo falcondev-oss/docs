@@ -1,0 +1,560 @@
+---
+/**
+ * gha-cache-server.falcondev.io in small: the rose-on-graphite hero and its request flow.
+ * Packets leave a runner, run down the server's request path and go on to storage. Restores come
+ * back, saves end in storage, and a client without a token is rejected at the first stage.
+ * Ported from the Flow component of the cache server docs.
+ */
+import type { Project } from '../../projects'
+
+type Props = { project: Project; stars: number | undefined }
+const { project, stars } = Astro.props
+
+const runners = ['runner-7f3k', 'runner-2c9x', 'runner-k41m'] as const
+const storage = ['local NVMe', 'S3, R2', 'GCS', 'Azure Blob'] as const
+const stages = [
+  { step: 'verify token', value: 'OIDC' },
+  { step: 'scope to repo', value: 'isolated' },
+  { step: 'look up key', value: '34k/s' },
+  { step: 'save', value: '2.3 GiB/s' },
+  { step: 'restore', value: '7.9 GiB/s' },
+] as const
+---
+
+<a class="card" href={project.url}>
+  <div class="nav">
+    {project.logo && <img src={project.logo} alt="" />}
+    <span>{project.name}</span>
+  </div>
+
+  <h3>Your GitHub Actions cache,<br /><em>on your own hardware.</em></h3>
+  <p class="lede">
+    A drop-in replacement for GitHub's cache service, written in Rust. <code>actions/cache</code> works unchanged.
+  </p>
+
+  <figure class="flow" aria-hidden="true">
+    <ul class="runners">
+      {
+        runners.map((name) => (
+          <li data-state="running">
+            <code>{name}</code>
+          </li>
+        ))
+      }
+      <li class="attacker"><code>no token</code></li>
+    </ul>
+    <div class="server">
+      <div class="server-head"><span class="beacon"></span><code>cache-server</code></div>
+      <ol class="pipeline">
+        {
+          stages.map(({ step, value }) => (
+            <li>
+              <span>{step}</span>
+              <b>{value}</b>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+    <ul class="storage">{storage.map((name) => <li>{name}</li>)}</ul>
+    <svg class="tracks"></svg>
+  </figure>
+
+  <div class="actions">
+    <span class="button primary">Get started</span>
+    <span class="button">GitHub{stars !== undefined && <small>★ {stars.toLocaleString('en-US')}</small>}</span>
+  </div>
+</a>
+
+<script>
+  type Point = { x: number; y: number }
+  type Piece = { to: Point; curve?: boolean; at?: () => void }
+  type Kind = 'restore' | 'save' | 'attack'
+
+  const SPEED = 190 // px per second
+  const TRAIL = 6
+  const svgNs = 'http://www.w3.org/2000/svg'
+  const palette = ['oklch(70% 0.2 0)', 'oklch(76% 0.13 230)', 'oklch(80% 0.17 130)', 'oklch(72% 0.17 300)', 'oklch(82% 0.14 80)']
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  for (const figure of document.querySelectorAll<HTMLElement>('.card .flow')) run(figure)
+
+  function run(figure: HTMLElement) {
+    const tracks = figure.querySelector<SVGSVGElement>('.tracks')!
+    const runnerRows = [...figure.querySelectorAll<HTMLLIElement>('.runners li:not(.attacker)')]
+    const attackerRow = figure.querySelector<HTMLLIElement>('.attacker')!
+    const stageRows = [...figure.querySelectorAll<HTMLLIElement>('.pipeline li')]
+    const storage = figure.querySelector<HTMLElement>('.storage')!
+    const server = figure.querySelector<HTMLElement>('.server')!
+    const pipeline = figure.querySelector<HTMLElement>('.pipeline')!
+    const measure = document.createElementNS(svgNs, 'path')
+
+    const layout = () => {
+      const origin = figure.getBoundingClientRect()
+      const box = (element: Element) => {
+        const r = element.getBoundingClientRect()
+        return { left: r.left - origin.left, right: r.right - origin.left, top: r.top - origin.top, bottom: r.bottom - origin.top, middle: r.top - origin.top + r.height / 2 }
+      }
+      const runnersRight = box(figure.querySelector('.runners')!).right + 6
+      const serverBox = box(server)
+      const pipeBox = box(pipeline)
+      return {
+        width: origin.width,
+        height: origin.height,
+        runner: new Map([...runnerRows, attackerRow].map((row) => [row, { x: runnersRight, y: box(row).middle }])),
+        storage: { x: box(storage).left, y: box(storage).middle },
+        stages: stageRows.map((row) => box(row).middle),
+        railX: pipeBox.left + 3,
+        bottom: serverBox.bottom - 9,
+        left: serverBox.left,
+        right: serverBox.right,
+      }
+    }
+    let g = layout()
+
+    const toPath = (start: Point, pieces: Piece[]) => {
+      let from = start
+      return pieces.map(({ to, curve }) => {
+        const mid = (from.x + to.x) / 2
+        const segment = curve ? `C ${mid} ${from.y}, ${mid} ${to.y}, ${to.x} ${to.y}` : `L ${to.x} ${to.y}`
+        from = to
+        return segment
+      })
+    }
+    const entry = (): Piece[] => [{ to: { x: g.left, y: g.stages[0]! }, curve: true }, { to: { x: g.railX, y: g.stages[0]! } }]
+
+    function drawTracks() {
+      g = layout()
+      tracks.setAttribute('viewBox', `0 0 ${g.width} ${g.height}`)
+      const lines: { d: string; attack: boolean }[] = []
+      const draw = (start: Point, pieces: Piece[], attack = false) => lines.push({ d: `M ${start.x} ${start.y} ${toPath(start, pieces).join(' ')}`, attack })
+      for (const row of runnerRows) {
+        const at = g.runner.get(row)!
+        draw(at, entry())
+        draw({ x: g.left, y: g.bottom }, [{ to: at, curve: true }])
+      }
+      draw(g.runner.get(attackerRow)!, entry(), true)
+      draw({ x: g.railX, y: g.stages[0]! }, [{ to: { x: g.railX, y: g.bottom } }])
+      draw({ x: g.left, y: g.bottom }, [{ to: { x: g.right, y: g.bottom } }])
+      draw({ x: g.right, y: g.bottom }, [{ to: g.storage, curve: true }])
+      tracks.replaceChildren(
+        ...lines.map(({ d, attack }) => {
+          const path = document.createElementNS(svgNs, 'path')
+          path.setAttribute('d', d)
+          if (attack) path.classList.add('attack')
+          return path
+        }),
+      )
+    }
+
+    function flash(element: HTMLElement, color: string) {
+      element.style.setProperty('--kind', color)
+      element.classList.remove('hit')
+      void element.offsetWidth
+      element.classList.add('hit')
+      setTimeout(() => element.classList.remove('hit'), 650)
+    }
+
+    function send(kind: Kind, row: HTMLLIElement) {
+      const color = row.style.getPropertyValue('--runner')
+      const start = g.runner.get(row)!
+      const stage = (i: number): Piece => ({ to: { x: g.railX, y: g.stages[i]! }, at: () => flash(stageRows[i]!, color) })
+      const pieces = entry()
+      pieces.at(-1)!.at = () => flash(stageRows[0]!, color)
+      if (kind !== 'attack') {
+        pieces.push(...(kind === 'save' ? [1, 2, 3] : [1, 2, 4]).map(stage), { to: { x: g.railX, y: g.bottom } }, { to: { x: g.right, y: g.bottom } })
+        pieces.push({ to: g.storage, curve: true, at: () => flash(storage, color) })
+        if (kind === 'restore')
+          pieces.push({ to: { x: g.right, y: g.bottom }, curve: true }, { to: { x: g.left, y: g.bottom } }, { to: start, curve: true, at: () => flash(row, color) })
+      }
+
+      const segments = toPath(start, pieces)
+      const d = `M ${start.x} ${start.y} ${segments.join(' ')}`
+      const marks = segments.map((_, i) => {
+        measure.setAttribute('d', `M ${start.x} ${start.y} ${segments.slice(0, i + 1).join(' ')}`)
+        return measure.getTotalLength()
+      })
+      const total = marks.at(-1)!
+      const duration = (total / SPEED) * 1000
+      const dots = Array.from({ length: TRAIL + 1 }, (_, i) => {
+        const dot = document.createElement('span')
+        dot.className = i === 0 ? 'packet' : 'packet trail'
+        dot.style.setProperty('--kind', color)
+        dot.style.offsetPath = `path("${d}")`
+        figure.append(dot)
+        const opacity = 1 - i / (TRAIL + 1)
+        const animation = dot.animate([{ offsetDistance: '0%', opacity }, { offsetDistance: '100%', opacity }], {
+          duration,
+          delay: i * 24,
+          easing: 'linear',
+          fill: i === 0 ? 'forwards' : 'none',
+        })
+        animation.onfinish = () => i > 0 && dot.remove()
+        return { dot, animation }
+      })
+      flash(row, color)
+      pieces.forEach((piece, i) => piece.at && setTimeout(piece.at, (marks[i]! / total) * duration))
+
+      const head = dots[0]!
+      head.animation.onfinish = () => {
+        if (kind !== 'attack') return head.dot.remove()
+        head.dot.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 700, fill: 'forwards' })
+        const label = document.createElement('span')
+        label.className = 'reject'
+        label.textContent = '401'
+        label.style.left = `${g.left - 30}px`
+        label.style.top = `${g.stages[0]! - 20}px`
+        figure.append(label)
+        label.animate([{ opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 1, offset: 0.7 }, { opacity: 0 }], { duration: 1100, fill: 'forwards' })
+        setTimeout(() => (head.dot.remove(), label.remove()), 1150)
+      }
+    }
+
+    // runners live for a few requests, get destroyed and replaced, like ephemeral runners do
+    const lifetime = new Map<HTMLLIElement, number>()
+    let nextColor = 0
+    const paint = (row: HTMLLIElement) => row.style.setProperty('--runner', palette[nextColor++ % palette.length]!)
+    runnerRows.forEach((row) => (paint(row), lifetime.set(row, 3 + Math.floor(Math.random() * 3))))
+    attackerRow.style.setProperty('--runner', 'var(--attack)')
+
+    let visible = false
+    function tick() {
+      setTimeout(tick, 1100 + Math.random() * 700)
+      if (!visible || document.hidden) return
+      const live = runnerRows.filter((row) => row.dataset.state === 'running')
+      const roll = Math.random()
+      if (roll < 0.18 || live.length === 0) return send('attack', attackerRow)
+      const row = live[Math.floor(Math.random() * live.length)]!
+      send(roll < 0.62 ? 'restore' : 'save', row)
+      const left = lifetime.get(row)! - 1
+      lifetime.set(row, left)
+      if (left > 0) return
+      setTimeout(() => (row.dataset.state = 'destroyed'), 6000)
+      setTimeout(() => {
+        row.querySelector('code')!.textContent = `runner-${Math.random().toString(36).slice(2, 6)}`
+        paint(row)
+        row.dataset.state = 'starting'
+      }, 8000)
+      setTimeout(() => ((row.dataset.state = 'running'), lifetime.set(row, 3 + Math.floor(Math.random() * 3))), 9200)
+    }
+
+    new ResizeObserver(drawTracks).observe(figure)
+    new IntersectionObserver(([e]) => (visible = !!e?.isIntersecting)).observe(figure)
+    document.fonts.ready.then(() => {
+      drawTracks()
+      if (!calm) tick()
+    })
+  }
+</script>
+
+<style>
+  .card {
+    /* the cache server docs: ember on graphite */
+    --a: oklch(64.5% 0.246 16.4);
+    --a-high: oklch(83% 0.11 14);
+    --bg: oklch(15.5% 0.006 20);
+    --fg: oklch(98% 0.004 20);
+    --tx-2: oklch(80% 0.008 20);
+    --tx-3: oklch(64% 0.01 20);
+    --line: oklch(100% 0 0 / 0.08);
+    --line-2: oklch(31% 0.01 20);
+    --green: oklch(78% 0.15 150);
+    --amber: oklch(80% 0.14 75);
+    --attack: oklch(68% 0.2 30);
+    container-type: inline-size;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    height: 100%;
+    padding: 0 2rem 2rem;
+    overflow: hidden;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.6rem;
+    background:
+      radial-gradient(28rem 16rem at 85% 12%, color-mix(in oklch, var(--a) 18%, transparent), transparent 70%),
+      var(--bg);
+    color: var(--fg);
+    font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+    text-decoration: none;
+    transition: border-color 0.2s;
+  }
+  :global([data-theme='light']) .card {
+    --a: oklch(55% 0.22 17);
+    --a-high: oklch(40% 0.17 15);
+    --bg: oklch(99.5% 0.002 20);
+    --fg: oklch(16% 0.006 20);
+    --tx-2: oklch(36% 0.01 20);
+    --tx-3: oklch(50% 0.01 20);
+    --line: oklch(0% 0 0 / 0.08);
+    --line-2: oklch(86% 0.006 20);
+    --green: oklch(60% 0.15 150);
+    --amber: oklch(68% 0.14 75);
+    --attack: oklch(58% 0.2 30);
+  }
+  .card:hover {
+    border-color: var(--sl-color-gray-4);
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-inline: -2rem;
+    margin-bottom: 0.75rem;
+    padding: 0.7rem 2rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .nav img {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  h3 {
+    margin: 0;
+    font-size: clamp(1.6rem, 7.4cqi, 3.25rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.04;
+    color: var(--fg);
+  }
+  h3 em {
+    font-style: normal;
+    background: linear-gradient(100deg, var(--a-high), var(--a) 60%);
+    background-clip: text;
+    color: transparent;
+  }
+  .lede {
+    margin: 0;
+    max-width: 30rem;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--tx-2);
+  }
+  .lede code {
+    font: 0.9em 'Geist Mono Variable', monospace;
+    color: var(--a-high);
+    text-decoration: underline dotted color-mix(in oklch, var(--a) 50%, transparent);
+    text-underline-offset: 0.3em;
+  }
+  .actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: auto;
+  }
+  .button {
+    padding: 0.55rem 0.95rem;
+    border: 1px solid var(--line-2);
+    border-radius: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  .button.primary {
+    background: var(--a);
+    border-color: var(--a);
+    color: white;
+  }
+  .button small {
+    margin-left: 0.45rem;
+    font-family: 'Geist Mono Variable', monospace;
+    color: var(--tx-3);
+  }
+
+  /* request flow */
+  .flow {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) 2.75rem minmax(0, 1.3fr) 2.25rem minmax(0, 0.7fr);
+    align-items: center;
+    margin: 0.75rem 0 1rem;
+    font-size: 0.72rem;
+  }
+  .flow ul {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .flow ul li {
+    margin: 0;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--tx-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition:
+      color 0.3s,
+      opacity 0.4s;
+  }
+  .flow ul li:first-child {
+    border-top: 1px solid var(--line);
+  }
+  .runners {
+    grid-column: 1;
+  }
+  .runners code {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: 'Geist Mono Variable', monospace;
+    color: var(--fg);
+  }
+  .runners code::before {
+    content: '';
+    flex: none;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--runner, var(--green));
+    transition: background 0.3s;
+  }
+  .runners [data-state='starting'] code::before {
+    background: var(--amber);
+  }
+  .runners [data-state='destroyed'] {
+    opacity: 0.4;
+  }
+  .runners [data-state='destroyed'] code {
+    text-decoration: line-through;
+  }
+  .attacker code {
+    color: var(--attack);
+  }
+  .server {
+    grid-column: 3;
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.7rem 0.8rem 1.1rem;
+    border: 1px solid color-mix(in oklch, var(--a) 50%, transparent);
+    border-radius: 0.5rem;
+    background: color-mix(in oklch, var(--bg) 85%, var(--a) 6%);
+    box-shadow: 0 16px 40px -20px color-mix(in oklch, var(--a) 45%, transparent);
+  }
+  .server-head {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .server-head code {
+    font-family: 'Geist Mono Variable', monospace;
+    color: var(--a-high);
+  }
+  .beacon {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  .pipeline {
+    display: grid;
+    margin: 0;
+    padding: 0 0 0 0.9rem;
+    list-style: none;
+  }
+  .pipeline li {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.28rem 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--tx-2);
+    white-space: nowrap;
+  }
+  .pipeline li:last-child {
+    border-bottom: 0;
+  }
+  .pipeline li::before {
+    content: '';
+    position: absolute;
+    left: -0.9rem;
+    top: 50%;
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: 50%;
+    translate: 0 -50%;
+    background: var(--line-2);
+    transition: background 0.4s;
+  }
+  .pipeline b {
+    font-family: 'Geist Mono Variable', monospace;
+    font-weight: 400;
+    color: var(--fg);
+  }
+  .storage {
+    grid-column: 5;
+    padding: 0.2rem 0.7rem !important;
+    border: 1px solid var(--line-2);
+    border-radius: 0.5rem;
+    transition: border-color 0.4s;
+  }
+  .storage li:first-child {
+    border-top: 0 !important;
+  }
+  .storage li:last-child {
+    border-bottom: 0;
+  }
+  .storage:global(.hit) {
+    border-color: var(--kind);
+  }
+  .pipeline :global(li.hit)::before {
+    background: var(--kind);
+  }
+  .pipeline :global(li.hit) b,
+  .flow ul :global(li.hit) {
+    color: var(--kind);
+  }
+
+  .tracks {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .tracks :global(path) {
+    fill: none;
+    stroke: var(--line-2);
+    stroke-width: 1;
+  }
+  .tracks :global(path.attack) {
+    stroke: color-mix(in oklch, var(--attack) 45%, transparent);
+    stroke-dasharray: 3 4;
+  }
+  .flow :global(.packet) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    offset-rotate: 0deg;
+    background: var(--kind);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .flow :global(.packet.trail) {
+    width: 0.26rem;
+    height: 0.26rem;
+  }
+  .flow :global(.reject) {
+    position: absolute;
+    z-index: 2;
+    padding: 0 0.3rem;
+    border-radius: 0.2rem;
+    background: var(--attack);
+    font: 0.62rem/1.4 'Geist Mono Variable', monospace;
+    color: white;
+    opacity: 0;
+  }
+
+  @container (max-width: 30rem) {
+    .flow {
+      display: none;
+    }
+  }
+</style>

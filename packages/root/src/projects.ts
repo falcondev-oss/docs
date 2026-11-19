@@ -15,8 +15,8 @@ type Base = {
 }
 
 type Skin =
-  /** Starlight "graphite" sites: gha-cache-server (radial glow) and lang (dot grid) */
-  | { skin: 'glow' | 'dots'; headline: readonly [string, string]; lede: string; hue: number }
+  /** Starlight sites with their own landing page and animation, rendered by a card of their own */
+  | { skin: 'gha-cache-server' | 'lang' }
   /** VitePress default theme sites: gradient name, bold text, gray tagline, glowing logo */
   | { skin: 'vitepress'; text: string; tagline: string; brand: string }
   /** no site yet: the GitHub README is the home page */
@@ -36,10 +36,7 @@ export const projects = [
     group: 'Self-hosted',
     summary: 'Self-hosted cache for GitHub Actions, written in Rust',
     command: 'docker run ghcr.io/falcondev-oss/github-actions-cache-server',
-    skin: 'glow',
-    headline: ['Your GitHub Actions cache,', 'on your own hardware.'],
-    lede: 'A drop-in replacement for the GitHub cache service. actions/cache and setup-* work unchanged.',
-    hue: 16,
+    skin: 'gha-cache-server',
     ...site('gha-cache-server'),
   },
   {
@@ -48,10 +45,7 @@ export const projects = [
     group: 'Libraries',
     summary: 'Type-safe i18n where the English text is the key',
     command: 'pnpm add @falcondev-oss/lang-core',
-    skin: 'dots',
-    headline: ['Every text in your app,', 'translated and typed.'],
-    lede: 'Wrap the text you already wrote in t() and add the other languages right there. For Vue, React and React Native.',
-    hue: 300,
+    skin: 'lang',
     ...site('lang'),
   },
   {

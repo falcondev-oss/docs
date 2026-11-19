@@ -8,7 +8,7 @@ type Props = { stats: Map<string, GitHubStats> }
 const { stats } = Astro.props
 
 const rows = [
-  { kind: 'flagship', items: projects.filter((p) => p.skin === 'glow' || p.skin === 'dots') },
+  { kind: 'flagship', items: projects.filter((p) => p.skin === 'gha-cache-server' || p.skin === 'lang') },
   { kind: 'site', items: projects.filter((p) => p.skin === 'vitepress') },
   ...groups.map((group) => ({
     kind: 'readme',
@@ -48,7 +48,7 @@ const rows = [
     margin: 0;
   }
   .flagship li {
-    min-height: 26rem;
+    min-height: 36rem;
   }
   .site li {
     min-height: 19rem;

@@ -1,57 +1,24 @@
 ---
 /**
  * A small copy of a project's home page hero, in the style of that page.
- * Sizes itself with container queries, so every variant can drop it into any slot.
+ * Sizes itself with container queries. gha-cache-server and lang get cards of their own, with their animations.
  */
 import type { Project } from '../projects'
+import CacheServerCard from './cards/CacheServerCard.astro'
+import LangCard from './cards/LangCard.astro'
 
 type Props = { project: Project; stars: number | undefined }
 const { project: p, stars } = Astro.props
 
 const starLabel = stars === undefined ? undefined : `★ ${stars.toLocaleString('en-US')}`
 
-const langHeadlines = [
-  ['Every text in your app,', 'translated and typed.'],
-  ['Jeder Text deiner App,', 'übersetzt und typisiert.'],
-  ['Cada texto de tu app,', 'traducido y con tipos.'],
-  ['Chaque texte de ton app,', 'traduit et typé.'],
-]
 ---
 
-<a
-  class:list={['mini', `skin-${p.skin}`]}
-  href={p.url}
-  style={p.skin === 'glow' || p.skin === 'dots'
-    ? `--hue: ${p.hue}`
-    : p.skin === 'vitepress'
-      ? `--brand: ${p.brand}`
-      : undefined}
-  data-repo={p.repo}
->
-  {
-    (p.skin === 'glow' || p.skin === 'dots') && (
-      <div class="sl">
-        <div class="sl-nav">
-          {p.logo && <img src={p.logo} alt="" />}
-          <span>{p.name}</span>
-        </div>
-        <h3 data-rotate={p.skin === 'dots' ? JSON.stringify(langHeadlines) : undefined}>
-          <span>{p.headline[0]}</span>
-          <br />
-          <em>{p.headline[1]}</em>
-        </h3>
-        <p class="lede">{p.lede}</p>
-        <div class="sl-actions">
-          <span class="sl-btn primary">Get started</span>
-          {p.skin === 'dots' ? (
-            <code class="sl-cmd">$ {p.command}</code>
-          ) : (
-            <span class="sl-btn">GitHub {starLabel && <small>{starLabel}</small>}</span>
-          )}
-        </div>
-      </div>
-    )
-  }
+{p.skin === 'gha-cache-server' && <CacheServerCard project={p} stars={stars} />}
+{p.skin === 'lang' && <LangCard project={p} />}
+{
+  (p.skin === 'vitepress' || p.skin === 'readme') && (
+<a class="mini" href={p.url} style={p.skin === 'vitepress' ? `--brand: ${p.brand}` : undefined}>
   {
     p.skin === 'vitepress' && (
       <div class="vp">
@@ -103,25 +70,8 @@ const langHeadlines = [
     )
   }
 </a>
-
-<script>
-  // lang's real home page greets in another language: rotate the headline the same way
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
-  for (const h of document.querySelectorAll<HTMLElement>('[data-rotate]')) {
-    if (reduce) continue
-    const lines = JSON.parse(h.dataset.rotate!) as [string, string][]
-    const [first, second] = [h.querySelector('span')!, h.querySelector('em')!]
-    let i = 0
-    setInterval(() => {
-      i = (i + 1) % lines.length
-      h.classList.add('swap')
-      setTimeout(() => {
-        ;[first.textContent, second.textContent] = lines[i]!
-        h.classList.remove('swap')
-      }, 250)
-    }, 3200)
-  }
-</script>
+  )
+}
 
 <style>
   .mini {
@@ -147,136 +97,6 @@ const langHeadlines = [
   }
   h3 {
     margin: 0;
-  }
-
-  /* ── Starlight "graphite" sites: gha-cache-server and lang ── */
-  .sl {
-    --a: oklch(64.5% 0.22 var(--hue));
-    --a-high: oklch(83% 0.11 var(--hue));
-    --bg: oklch(15.5% 0.008 var(--hue));
-    --fg: oklch(97% 0.005 var(--hue));
-    --muted: oklch(78% 0.012 var(--hue));
-    --line: oklch(100% 0 0 / 0.1);
-    height: 100%;
-    padding: 0 6cqi 6cqi;
-    display: flex;
-    flex-direction: column;
-    gap: 3.5cqi;
-    background: var(--bg);
-    color: var(--fg);
-    font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
-  }
-  :global([data-theme='light']) .sl {
-    --a: oklch(54% 0.22 var(--hue));
-    --a-high: oklch(38% 0.17 var(--hue));
-    --bg: oklch(99.4% 0.003 var(--hue));
-    --fg: oklch(17% 0.008 var(--hue));
-    --muted: oklch(42% 0.012 var(--hue));
-    --line: oklch(0% 0 0 / 0.08);
-  }
-  .skin-glow .sl {
-    background:
-      radial-gradient(70cqi 45cqi at 85% 15%, color-mix(in oklch, var(--a) 22%, transparent), transparent 70%),
-      var(--bg);
-  }
-  .skin-dots .sl {
-    position: relative;
-  }
-  .skin-dots .sl::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: radial-gradient(color-mix(in oklch, var(--a) 40%, transparent) 1px, transparent 1.4px) 0 0 / 8px 8px;
-    mask: linear-gradient(100deg, black, transparent 45%, transparent 70%, black);
-  }
-  .skin-dots .sl {
-    background-color: transparent;
-  }
-  .skin-dots {
-    background: var(--sl-color-black);
-  }
-  .sl-nav {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    margin-inline: -6cqi;
-    padding: 0.7rem 6cqi;
-    border-bottom: 1px solid var(--line);
-    font-weight: 600;
-    font-size: 0.85rem;
-    margin-bottom: 3cqi;
-  }
-  .sl-nav img {
-    width: 1.3rem;
-    height: 1.3rem;
-  }
-  .sl h3 {
-    font-size: clamp(1.35rem, 8.2cqi, 4.5rem);
-    font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 1.04;
-    color: var(--fg);
-    transition:
-      opacity 0.25s,
-      filter 0.25s;
-  }
-  .sl h3:global(.swap) {
-    opacity: 0;
-    filter: blur(6px);
-  }
-  .sl h3 em {
-    font-style: normal;
-    background: linear-gradient(100deg, var(--a-high), var(--a) 60%);
-    background-clip: text;
-    color: transparent;
-  }
-  .skin-dots .sl h3 em {
-    background: none;
-    color: var(--fg);
-  }
-  .sl .lede {
-    margin: 0;
-    max-width: 34rem;
-    font-size: clamp(0.85rem, 2.4cqi, 1.1rem);
-    line-height: 1.55;
-    color: var(--muted);
-  }
-  .sl-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-top: auto;
-    padding-top: 1rem;
-  }
-  .sl-btn {
-    padding: 0.5rem 0.9rem;
-    border: 1px solid var(--line);
-    border-radius: 0.4rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-  }
-  .sl-btn.primary {
-    background: var(--a);
-    border-color: var(--a);
-    color: white;
-  }
-  .sl-btn small,
-  .vp-btn small {
-    font-family: 'Geist Mono Variable', monospace;
-    opacity: 0.7;
-    margin-left: 0.25rem;
-  }
-  .sl-cmd {
-    padding: 0.5rem 0.8rem;
-    border: 1px dashed var(--line);
-    border-radius: 0.4rem;
-    font: 0.8rem 'Geist Mono Variable', monospace;
-    color: var(--muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
   }
 
   /* ── VitePress default theme sites ── */
@@ -490,9 +310,6 @@ const langHeadlines = [
       grid-template-columns: minmax(0, 1fr);
     }
     .vp-image {
-      display: none;
-    }
-    .sl .lede {
       display: none;
     }
   }
