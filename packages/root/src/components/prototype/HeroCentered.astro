@@ -1,0 +1,90 @@
+---
+// PROTOTYPE hero 2: centered. Logo and wordmark, a short motto as the title, numbers under the buttons.
+import logo from '../../assets/logo.svg'
+
+type Props = { projectCount: number; totalStars: number }
+const { projectCount, totalStars } = Astro.props
+---
+
+<section class="hero">
+  <div class="mark">
+    <img src={logo.src} alt="" />
+    <span class="fd-brand">falconDev</span>
+  </div>
+  <h1>Complex things,<br />built simple.</h1>
+  <p>Open-source TypeScript libraries and self-hosted tools, typed from the database to the UI.</p>
+  <div class="fd-actions">
+    <a class="fd-button primary" href="https://github.com/falcondev-oss">GitHub</a>
+    <a class="fd-button" href="https://github.com/sponsors/falcondev-oss">Sponsor</a>
+  </div>
+  <dl>
+    <div><dt>projects</dt><dd>{projectCount}</dd></div>
+    {totalStars > 0 && <div><dt>stars</dt><dd>{totalStars.toLocaleString('en-US')}</dd></div>}
+    <div><dt>license</dt><dd>MIT</dd></div>
+  </dl>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 1.75rem;
+    text-align: center;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: -14rem -50vw -2rem;
+    z-index: -1;
+    background:
+      radial-gradient(30rem 16rem at 40% 0%, color-mix(in oklch, #7e2ffc 20%, transparent), transparent 70%),
+      radial-gradient(30rem 16rem at 60% 10%, color-mix(in oklch, #59befe 16%, transparent), transparent 70%);
+    pointer-events: none;
+  }
+  .mark {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: var(--sl-text-xl);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .mark img {
+    width: 2.5rem;
+  }
+  h1 {
+    font-size: clamp(2.75rem, 7vw, 5.75rem);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    color: var(--sl-color-white);
+  }
+  p {
+    max-width: 32rem;
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+    line-height: 1.6;
+    color: var(--sl-color-gray-2);
+  }
+  .fd-actions {
+    justify-content: center;
+  }
+  dl {
+    display: flex;
+    gap: 2.5rem;
+    margin: 0.5rem 0 0;
+  }
+  dl div {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  dt {
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-xs);
+  }
+  dd {
+    margin: 0;
+    font: 500 var(--sl-text-xl) var(--sl-font-mono);
+    color: var(--sl-color-white);
+  }
+</style>

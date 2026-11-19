@@ -480,6 +480,11 @@ const langHeadlines = [
   }
 
   /* narrow slots: drop the parts a glance does not need */
+  @container (max-width: 20rem) {
+    .gh-pill {
+      display: none;
+    }
+  }
   @container (max-width: 26rem) {
     .vp-hero {
       grid-template-columns: minmax(0, 1fr);

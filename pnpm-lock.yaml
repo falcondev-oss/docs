@@ -263,16 +263,6 @@ importers:
 
   packages/caps: {}
 
-  packages/configs: {}
-
-  packages/expo-event-source-polyfill: {}
-
-  packages/form: {}
-
-  packages/lang: {}
-
-  packages/nitro-trpc-event-handler: {}
-
   packages/root:
     dependencies:
       '@astrojs/starlight':
@@ -297,10 +287,6 @@ importers:
       '@astrojs/check':
         specifier: ^0.9.12
         version: 0.9.12(prettier@3.9.10)(typescript@6.0.3)
-
-  packages/trpc-vue-query: {}
-
-  packages/util: {}
 
   packages/workflow: {}
 

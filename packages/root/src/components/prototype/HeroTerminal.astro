@@ -1,0 +1,145 @@
+---
+// PROTOTYPE hero 3: title and description left, a terminal right that types the install lines of our projects.
+import { projects } from '../../projects'
+
+type Props = { projectCount: number; totalStars: number }
+const { projectCount, totalStars } = Astro.props
+
+const lines = projects.filter((p) => p.group !== 'Self-hosted' || p.skin === 'glow').map((p) => ({ command: p.command, note: p.summary }))
+---
+
+<section class="hero">
+  <div class="copy">
+    <h1>Type-safe from the database <span class="fd-brand">to the UI.</span></h1>
+    <p>
+      Libraries for forms, i18n, access control, queues and tRPC. Tools to self-host your CI cache, secrets and files. {
+        projectCount
+      } projects{totalStars > 0 && `, ${totalStars.toLocaleString('en-US')} stars`}, MIT.
+    </p>
+    <div class="fd-actions">
+      <a class="fd-button primary" href="https://github.com/falcondev-oss">GitHub</a>
+      <a class="fd-button" href="https://github.com/sponsors/falcondev-oss">Sponsor</a>
+    </div>
+  </div>
+  <div class="term" data-lines={JSON.stringify(lines)}>
+    <div class="bar"><i></i><i></i><i></i><span>~/app</span></div>
+    <pre><code data-out></code><span class="caret"></span></pre>
+  </div>
+</section>
+
+<script>
+  const term = document.querySelector<HTMLElement>('.term[data-lines]')
+  if (term) {
+    const lines = JSON.parse(term.dataset.lines!) as { command: string; note: string }[]
+    const out = term.querySelector<HTMLElement>('[data-out]')!
+    const done: string[] = []
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+    const render = (typing = '') =>
+      (out.innerHTML = [...done, `<b>$</b> ${typing}`].slice(-9).join('\n'))
+
+    const run = async () => {
+      for (let i = 0; ; i = (i + 1) % lines.length) {
+        const { command, note } = lines[i]!
+        for (let c = 1; c <= command.length; c++) {
+          render(command.slice(0, c))
+          await sleep(22)
+        }
+        await sleep(350)
+        done.push(`<b>$</b> ${command}`, `<em># ${note}</em>`)
+        render()
+        await sleep(900)
+      }
+    }
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      for (const { command, note } of lines.slice(0, 4)) done.push(`<b>$</b> ${command}`, `<em># ${note}</em>`)
+      render()
+    } else void run()
+  }
+</script>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+  .copy {
+    display: grid;
+    gap: 1.75rem;
+  }
+  h1 {
+    font-size: clamp(2.5rem, 5vw, 4.25rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.04;
+    color: var(--sl-color-white);
+    text-wrap: balance;
+  }
+  p {
+    max-width: 34rem;
+    font-size: clamp(1.05rem, 1.6vw, 1.15rem);
+    line-height: 1.6;
+    color: var(--sl-color-gray-2);
+  }
+  .term {
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.6rem;
+    background: var(--sl-color-gray-6);
+    box-shadow: 0 30px 80px -40px color-mix(in oklch, var(--sl-color-accent) 60%, transparent);
+    overflow: hidden;
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+    font: var(--sl-text-xs) var(--sl-font-mono);
+    color: var(--sl-color-gray-3);
+  }
+  .bar i {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background: var(--sl-color-gray-5);
+  }
+  .bar span {
+    margin-left: auto;
+  }
+  pre {
+    height: 15.5rem;
+    margin: 0;
+    padding: 1rem 1.1rem;
+    overflow: hidden;
+    font: var(--sl-text-sm) / 1.7 var(--sl-font-mono);
+    color: var(--sl-color-gray-1);
+    white-space: pre-wrap;
+  }
+  pre :global(b) {
+    color: var(--sl-color-accent-high);
+    font-weight: 400;
+  }
+  pre :global(em) {
+    font-style: normal;
+    color: var(--sl-color-gray-3);
+  }
+  .caret {
+    display: inline-block;
+    width: 0.55em;
+    height: 1.1em;
+    vertical-align: text-bottom;
+    background: var(--sl-color-accent);
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  @media (max-width: 64rem) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

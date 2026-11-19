@@ -117,3 +117,40 @@ h1#_top {
 :root {
   --fd-gradient: linear-gradient(120deg, #7e2ffc 30%, #59befe);
 }
+
+/* buttons of the home page heroes, same as the gha-cache-server landing */
+.fd-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.fd-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.15rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.4rem;
+  font-weight: 500;
+  color: var(--sl-color-white);
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+.fd-button:hover {
+  border-color: var(--sl-color-gray-3);
+}
+.fd-button.primary {
+  background: var(--sl-color-accent);
+  border-color: var(--sl-color-accent);
+  color: oklch(99% 0 0);
+}
+.fd-button.primary:hover {
+  background: color-mix(in oklch, var(--sl-color-accent) 85%, white);
+}
+.fd-brand {
+  background: var(--fd-gradient);
+  background-clip: text;
+  color: transparent;
+}

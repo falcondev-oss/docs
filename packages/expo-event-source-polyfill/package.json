@@ -1,9 +1,0 @@
-{
-  "name": "expo-event-source-polyfill",
-  "type": "module",
-  "scripts": {
-    "build": "vitepress build",
-    "dev": "vitepress dev",
-    "deploy": "wrangler deploy"
-  }
-}
