@@ -7,3 +7,5 @@ dist/
 **/.vitepress/cache/
 .turbo/
 .wrangler/
+.astro/
+.playwright-mcp/

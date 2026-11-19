@@ -1,0 +1,33 @@
+---
+import { fetchStats, projects } from '../projects'
+import Hero from './Hero.astro'
+import ProjectGrid from './ProjectGrid.astro'
+
+const stats = await fetchStats()
+const totalStars = projects.reduce((sum, p) => sum + (stats.get(p.repo)?.stars ?? 0), 0)
+---
+
+<div class="home not-content">
+  <Hero projectCount={projects.length} totalStars={totalStars} />
+  <ProjectGrid stats={stats} />
+</div>
+
+<style>
+  :global(main:has(.home)) {
+    overflow-x: clip;
+  }
+  :global(main:has(.home) .sl-container) {
+    max-width: none;
+  }
+  :global(main:has(.home) .content-panel) {
+    padding-top: 0;
+    border: 0;
+  }
+  .home {
+    display: grid;
+    gap: clamp(3rem, 6vw, 4.5rem);
+    max-width: 80rem;
+    margin: clamp(2.5rem, 7vw, 5rem) auto 0;
+    padding-bottom: 5rem;
+  }
+</style>

@@ -1,0 +1,132 @@
+---
+// The name as the title next to a large glowing logo, with three principles below.
+import logo from '../assets/logo.svg'
+
+type Props = { projectCount: number; totalStars: number }
+const { projectCount, totalStars } = Astro.props
+
+const principles = [
+  ['Typed end to end', 'Types flow from the database to the UI. Inference first, no any.'],
+  ['Self-hosted first', 'Run your CI cache, secrets and files on your own hardware.'],
+  ['Simple over clever', 'The smallest API that solves the problem, with great DX.'],
+] as const
+---
+
+<section class="hero">
+  <div class="top">
+    <div class="copy">
+      <h1>Open source<br />by <span class="fd-brand">falconDev</span>.</h1>
+      <div class="fd-actions">
+        <a class="fd-button primary" href="https://github.com/falcondev-oss">GitHub</a>
+        <a class="fd-button" href="https://github.com/sponsors/falcondev-oss">Sponsor</a>
+        <span class="count">
+          {projectCount} projects{totalStars > 0 && ` · ★ ${totalStars.toLocaleString('en-US')}`}
+        </span>
+      </div>
+    </div>
+    <div class="logo"><img src={logo.src} alt="" /></div>
+  </div>
+  <ol>
+    {
+      principles.map(([title, text], i) => (
+        <li>
+          <span>0{i + 1}</span>
+          <h2>{title}</h2>
+          <p>{text}</p>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .hero {
+    display: grid;
+    gap: 3rem;
+  }
+  .top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2rem;
+  }
+  .copy {
+    display: grid;
+    gap: 2rem;
+  }
+  h1 {
+    font-size: clamp(2.75rem, 7vw, 6rem);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    color: var(--sl-color-white);
+  }
+  .fd-actions {
+    align-items: center;
+  }
+  .count {
+    margin-left: 0.5rem;
+    font: var(--sl-text-sm) var(--sl-font-mono);
+    color: var(--sl-color-gray-3);
+  }
+  .logo {
+    position: relative;
+    width: clamp(8rem, 22vw, 17rem);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+  }
+  .logo::before {
+    content: '';
+    position: absolute;
+    inset: 10%;
+    border-radius: 50%;
+    background: var(--fd-gradient);
+    filter: blur(60px);
+    opacity: 0.45;
+  }
+  .logo img {
+    position: relative;
+    width: 70%;
+  }
+  ol {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  li {
+    display: grid;
+    align-content: start;
+    gap: 0.4rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--sl-color-hairline);
+  }
+  li span {
+    font: var(--sl-text-xs) var(--sl-font-mono);
+    color: var(--sl-color-accent-high);
+  }
+  h2 {
+    margin: 0;
+    font-size: var(--sl-text-lg);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--sl-color-white);
+  }
+  li p {
+    margin: 0;
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-3);
+  }
+  @media (max-width: 48rem) {
+    .top,
+    ol {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .logo {
+      display: none;
+    }
+  }
+</style>
