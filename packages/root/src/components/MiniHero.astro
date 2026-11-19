@@ -1,0 +1,316 @@
+---
+/**
+ * A small copy of a project's home page hero, in the style of that page.
+ * Sizes itself with container queries. gha-cache-server and lang get cards of their own, with their animations.
+ */
+import type { Project } from '../projects'
+import CacheServerCard from './cards/CacheServerCard.astro'
+import LangCard from './cards/LangCard.astro'
+
+type Props = { project: Project; stars: number | undefined }
+const { project: p, stars } = Astro.props
+
+const starLabel = stars === undefined ? undefined : `★ ${stars.toLocaleString('en-US')}`
+
+---
+
+{p.skin === 'gha-cache-server' && <CacheServerCard project={p} stars={stars} />}
+{p.skin === 'lang' && <LangCard project={p} />}
+{
+  (p.skin === 'vitepress' || p.skin === 'readme') && (
+<a class="mini" href={p.url} style={p.skin === 'vitepress' ? `--brand: ${p.brand}` : undefined}>
+  {
+    p.skin === 'vitepress' && (
+      <div class="vp">
+        <div class="vp-nav">
+          {p.logo && <img src={p.logo} alt="" />}
+          <span>{p.name}</span>
+        </div>
+        <div class="vp-hero">
+          <div class="vp-copy">
+            <h3>
+              <span class="vp-name">{p.name}</span>
+              <span class="vp-text">{p.text}</span>
+            </h3>
+            <p class="vp-tagline">{p.tagline}</p>
+            <div class="vp-actions">
+              <span class="vp-btn brand">Get Started</span>
+              <span class="vp-btn alt">GitHub {starLabel && <small>{starLabel}</small>}</span>
+            </div>
+          </div>
+          {p.logo && (
+            <div class="vp-image">
+              <img src={p.logo} alt="" />
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+  {
+    p.skin === 'readme' && (
+      <div class="gh">
+        <div class="gh-path">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z"
+            />
+          </svg>
+          <span>falcondev-oss</span>/<b>{p.repo}</b>
+          <span class="gh-pill">Public</span>
+          {starLabel && <span class="gh-stars">{starLabel}</span>}
+        </div>
+        <div class="gh-readme">
+          <h3>{p.name}</h3>
+          <p>{p.lede}</p>
+          <pre><code>{p.command}</code></pre>
+        </div>
+      </div>
+    )
+  }
+</a>
+  )
+}
+
+<style>
+  .mini {
+    container-type: inline-size;
+    position: relative;
+    display: block;
+    height: 100%;
+    overflow: hidden;
+    isolation: isolate;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.6rem;
+    color: inherit;
+    text-decoration: none;
+    transition:
+      border-color 0.2s,
+      transform 0.2s;
+  }
+  .mini:hover {
+    border-color: var(--sl-color-gray-4);
+  }
+  .mini img {
+    display: block;
+  }
+  h3 {
+    margin: 0;
+  }
+
+  /* ── VitePress default theme sites ── */
+  .vp {
+    --bg: #1b1b1f;
+    --fg: rgba(255, 255, 245, 0.86);
+    --muted: rgba(235, 235, 245, 0.6);
+    --soft: #2e2e32;
+    --divider: #2e2e32;
+    --vp-gray: #8e8e96;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  }
+  :global([data-theme='light']) .vp {
+    --bg: #ffffff;
+    --fg: rgba(60, 60, 67);
+    --muted: rgba(60, 60, 67, 0.78);
+    --soft: #ebebef;
+    --divider: #e2e2e3;
+    --vp-gray: #67676c;
+  }
+  .vp-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 6cqi;
+    border-bottom: 1px solid var(--divider);
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .vp-nav img {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  .vp-hero {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4cqi;
+    padding: 7cqi 6cqi;
+  }
+  .vp-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 3cqi;
+  }
+  .vp h3 {
+    display: flex;
+    flex-direction: column;
+    font-size: clamp(1.25rem, 6.4cqi, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+  }
+  .vp-name {
+    color: var(--brand);
+  }
+  .vp-text {
+    color: var(--fg);
+    text-wrap: balance;
+  }
+  .vp-tagline {
+    margin: 0;
+    max-width: 30rem;
+    font-size: clamp(0.85rem, 2.9cqi, 1.3rem);
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+  .vp-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1cqi;
+  }
+  .vp-btn {
+    padding: 0.35rem 1rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .vp-btn.brand {
+    background: var(--brand);
+    color: #fff;
+  }
+  .vp-btn.alt {
+    background: var(--soft);
+  }
+  .vp-image {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: clamp(4rem, 26cqi, 16rem);
+    aspect-ratio: 1;
+  }
+  .vp-image::before {
+    content: '';
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    background: var(--brand);
+    filter: blur(min(44px, 9cqi));
+    opacity: 0.45;
+  }
+  .vp-image img {
+    position: relative;
+    width: 72%;
+    height: 72%;
+    object-fit: contain;
+  }
+
+  /* ── GitHub README: the home page of projects without a site ── */
+  .gh {
+    --bg: #0d1117;
+    --fg: #f0f6fc;
+    --muted: #9198a1;
+    --line: #3d444d;
+    --code: #151b23;
+    --link: #4493f8;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--fg);
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    font-size: 0.85rem;
+  }
+  :global([data-theme='light']) .gh {
+    --bg: #ffffff;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --line: #d1d9e0;
+    --code: #f6f8fa;
+    --link: #0969da;
+  }
+  .gh-path {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--link);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .gh-path svg {
+    width: 1rem;
+    color: var(--muted);
+    flex: none;
+  }
+  .gh-path b {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .gh-pill {
+    margin-left: 0.25rem;
+    padding: 0 0.45rem;
+    border: 1px solid var(--line);
+    border-radius: 2em;
+    color: var(--muted);
+    font-size: 0.72rem;
+    line-height: 1.5;
+  }
+  .gh-stars {
+    margin-left: auto;
+    color: var(--muted);
+  }
+  .gh-readme {
+    padding: 1rem;
+  }
+  .gh h3 {
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--line);
+    font-size: 1.45rem;
+    font-weight: 600;
+  }
+  .gh p {
+    margin: 0.75rem 0;
+    line-height: 1.5;
+  }
+  .gh pre {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    background: var(--code);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .gh code {
+    font: 0.78rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--fg);
+  }
+
+  /* narrow slots: drop the parts a glance does not need */
+  @container (max-width: 20rem) {
+    .gh-pill {
+      display: none;
+    }
+  }
+  @container (max-width: 26rem) {
+    .vp-hero {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .vp-image {
+      display: none;
+    }
+  }
+</style>

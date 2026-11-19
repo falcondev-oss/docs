@@ -1,0 +1,70 @@
+---
+// Rows of mini home pages: flagship sites, then the other sites, then one row of READMEs per group.
+import type { GitHubStats } from '../projects'
+import { groups, projects } from '../projects'
+import MiniHero from './MiniHero.astro'
+
+type Props = { stats: Map<string, GitHubStats> }
+const { stats } = Astro.props
+
+const rows = [
+  { kind: 'flagship', items: projects.filter((p) => p.skin === 'gha-cache-server' || p.skin === 'lang') },
+  { kind: 'site', items: projects.filter((p) => p.skin === 'vitepress') },
+  ...groups.map((group) => ({
+    kind: 'readme',
+    items: projects.filter((p) => p.skin === 'readme' && p.group === group),
+  })),
+].filter((row) => row.items.length > 0)
+---
+
+<div class="grid">
+  {
+    rows.map((row) => (
+      <ul class={row.kind} style={`--n: ${row.items.length}`}>
+        {row.items.map((p) => (
+          <li>
+            <MiniHero project={p} stars={stats.get(p.repo)?.stars} />
+          </li>
+        ))}
+      </ul>
+    ))
+  }
+</div>
+
+<style>
+  .grid {
+    display: grid;
+    gap: 1rem;
+  }
+  ul {
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  li {
+    margin: 0;
+  }
+  .flagship li {
+    min-height: 36rem;
+  }
+  .site li {
+    min-height: 19rem;
+  }
+
+  @media (max-width: 64rem) {
+    ul {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 40rem) {
+    ul {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    li {
+      min-height: 0 !important;
+    }
+  }
+</style>

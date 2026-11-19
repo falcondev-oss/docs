@@ -1,0 +1,156 @@
+/* Iris on graphite: the family of the gha-cache-server and lang docs, with the falconDev violet to sky accent. */
+:root {
+  --sl-font: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --sl-font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
+
+  --sl-color-accent-low: oklch(27% 0.09 285);
+  --sl-color-accent: oklch(64.5% 0.246 285);
+  --sl-color-accent-high: oklch(83% 0.11 285);
+
+  --sl-color-white: oklch(98% 0.005 285);
+  --sl-color-gray-1: oklch(92% 0.008 285);
+  --sl-color-gray-2: oklch(80% 0.01 285);
+  --sl-color-gray-3: oklch(64% 0.012 285);
+  --sl-color-gray-4: oklch(46% 0.012 285);
+  --sl-color-gray-5: oklch(31% 0.012 285);
+  --sl-color-gray-6: oklch(21% 0.01 285);
+  --sl-color-black: oklch(15.5% 0.008 285);
+
+  --sl-color-bg-nav: oklch(15.5% 0.006 20 / 0.8);
+  --sl-color-hairline: oklch(100% 0 0 / 0.08);
+  --sl-color-hairline-light: oklch(100% 0 0 / 0.06);
+  --sl-content-width: 48rem;
+  --sl-line-height-headings: 1.15;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: oklch(94% 0.03 285);
+  --sl-color-accent: oklch(55% 0.22 285);
+  --sl-color-accent-high: oklch(40% 0.17 285);
+
+  --sl-color-white: oklch(16% 0.008 285);
+  --sl-color-gray-1: oklch(24% 0.01 285);
+  --sl-color-gray-2: oklch(36% 0.012 285);
+  --sl-color-gray-3: oklch(50% 0.012 285);
+  --sl-color-gray-4: oklch(66% 0.01 285);
+  --sl-color-gray-5: oklch(86% 0.008 285);
+  --sl-color-gray-6: oklch(95% 0.005 285);
+  --sl-color-gray-7: oklch(97.5% 0.004 285);
+  --sl-color-black: oklch(99.5% 0.003 285);
+
+  --sl-color-bg-nav: oklch(99.5% 0.002 20 / 0.8);
+  --sl-color-hairline: oklch(0% 0 0 / 0.09);
+  --sl-color-hairline-light: oklch(0% 0 0 / 0.06);
+}
+
+header.header {
+  backdrop-filter: blur(12px);
+  border-bottom-color: var(--sl-color-hairline);
+}
+
+.site-title {
+  color: var(--sl-color-white);
+  font-size: var(--sl-text-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* quiet active state: accent text on a faint wash, not a solid block */
+.sidebar-content a[aria-current='page'] {
+  background: var(--sl-color-accent-low);
+  color: var(--sl-color-accent-high);
+  font-weight: 500;
+}
+
+.sl-markdown-content :is(h1, h2, h3, h4) {
+  letter-spacing: -0.02em;
+}
+
+.sl-markdown-content h3 code {
+  font-size: 0.95em;
+}
+
+h1#_top {
+  letter-spacing: -0.035em;
+}
+
+/* dense, ruled tables instead of zebra boxes */
+.sl-markdown-content table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--sl-text-sm);
+}
+.sl-markdown-content :is(th, td) {
+  border: 0;
+  border-bottom: 1px solid var(--sl-color-hairline);
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  background: none !important;
+}
+.sl-markdown-content th {
+  color: var(--sl-color-gray-3);
+  font-weight: 500;
+  font-size: var(--sl-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sl-markdown-content :not(pre) > code:not(:where(.not-content *)) {
+  border: 1px solid var(--sl-color-hairline);
+  background: var(--sl-color-gray-6);
+  border-radius: 0.25rem;
+  padding: 0.1em 0.3em;
+}
+
+.sl-markdown-content a {
+  text-decoration-color: color-mix(in oklch, var(--sl-color-accent) 45%, transparent);
+  text-underline-offset: 0.2em;
+}
+.sl-markdown-content a:hover {
+  text-decoration-color: var(--sl-color-accent);
+}
+
+::selection {
+  background: color-mix(in oklch, var(--sl-color-accent) 35%, transparent);
+}
+
+:root {
+  --fd-gradient: linear-gradient(120deg, #7e2ffc 30%, #59befe);
+}
+
+/* buttons of the home page heroes, same as the gha-cache-server landing */
+.fd-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.fd-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.15rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.4rem;
+  font-weight: 500;
+  color: var(--sl-color-white);
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+.fd-button:hover {
+  border-color: var(--sl-color-gray-3);
+}
+.fd-button.primary {
+  background: var(--sl-color-accent);
+  border-color: var(--sl-color-accent);
+  color: oklch(99% 0 0);
+}
+.fd-button.primary:hover {
+  background: color-mix(in oklch, var(--sl-color-accent) 85%, white);
+}
+.fd-brand {
+  background: var(--fd-gradient);
+  background-clip: text;
+  color: transparent;
+}

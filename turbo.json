@@ -4,7 +4,7 @@
   "globalPassThroughEnv": [
     "CLOUDFLARE_ACCOUNT_ID",
     "CLOUDFLARE_API_TOKEN",
-    "CLOUDFLARE_ACCOUNT_ID"
+    "GITHUB_TOKEN"
   ],
   "concurrency": "15",
   "globalDependencies": ["default-config.ts", "theme/**"],

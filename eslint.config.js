@@ -7,7 +7,7 @@ export default eslintConfig({
   tsconfigPath: './tsconfig.json',
 })
   .append({
-    ignores: ['node_modules/', 'dist/', './**/.vitepress/cache/', 'pnpm-lock.yaml'],
+    ignores: ['node_modules/', 'dist/', 'packages/root/', './**/.vitepress/cache/', 'pnpm-lock.yaml'],
   })
   .append({
     files: ['**/*.vue'],
